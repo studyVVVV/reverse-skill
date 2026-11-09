@@ -43,6 +43,7 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 - Frida 设备检查、进程列举、spawn/attach 注入：`scripts/frida-run.ps1`
 - 重建、对齐、签名、安装 APK：`scripts/rebuild-sign-install.ps1`
 - 无 root 设备注入 Frida Gadget（Kali/Linux）：`scripts/gadget-inject.sh`
+- 在已 root 设备/AVD 部署并启动 frida-server：`scripts/frida-server-android.sh`
 - 快速抽取 Manifest 关键组件与权限：`scripts/manifest-summary.ps1`
 
 以下一行命令保持直接调用，不单独封装：
@@ -107,11 +108,33 @@ pwsh -File "<skill-root>\apk-reverse\scripts\rebuild-sign-install.ps1" -ProjectD
 - 默认生成并复用调试 keystore
 - 默认输出到 `ProjectDir` 同目录，便于和原始包、解包目录放在一起
 
+### `scripts/frida-server-android.sh`（Kali/Linux，已 root）
+
+用途：
+
+- 在 userdebug 镜像的 AVD（如 `Pixel_10_Pro`）或已 root 真机上部署 frida-server
+- 自动完成：按设备 ABI 选择二进制 → `adb push` → `chmod` → 停旧进程 → `setsid` 启动
+  0.0.0.0:27042 → 校验进程与 `frida-ps -U`
+
+示例：
+
+```bash
+bash <skill-root>/apk-reverse/scripts/frida-server-android.sh
+frida-ps -U
+frida -U -f com.android.settings -q -e "console.log(Process.id, Process.arch)"
+```
+
+说明：
+
+- 二进制默认取 `~/tools/frida/frida-server-<version>-android-<abi>`，可用 `--lib-dir/--version` 覆盖
+- 设备必须可 root（`adb root` 成功）；Play Store 镜像请改用 Gadget 方案
+- 模拟器重启后不会自启，重新执行脚本即可；`--stop` 可停止服务
+
 ### `scripts/gadget-inject.sh`（Kali/Linux，非 root）
 
 用途：
 
-- 设备没有 root（Genymotion 免费版、非调试固件）时，用 Frida Gadget 替代 frida-server
+- 设备没有 root（Play Store 镜像、非调试固件）时，用 Frida Gadget 替代 frida-server
 - 自动完成：apktool 反编译 → 放置 `lib/<abi>/libgadget.so` → 注入 `System.loadLibrary("gadget")`
   → apktool 重建 → zipalign → apksigner 签名 → 可选 `adb install`
 

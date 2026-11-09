@@ -313,29 +313,27 @@ find "$SP/skills" -name SKILL.md | wc -l    # 应为 1011
 
 ---
 
-## 9. Android 模拟器（Genymotion）联动
+## 9. Android 模拟器（AVD / Pixel_10_Pro）联动
 
 | 项 | 值 |
 |---|---|
-| Genymotion | 3.11.0，安装于 `/opt/genymobile` |
-| 设备 | `Genymotion Phone`（Android 12 / x86_64），adb 序列号 `127.0.0.1:6555` |
-| 设备权限 | `ro.build.type=user`、`ro.debuggable=0`、无 `su` → **非 root** |
-| 授权 | license 未注册，`gmtool admin/device` 子命令提示 `A license is required to use this feature` |
+| 设备 | AVD `Pixel_10_Pro`，adb 序列号 `emulator-5554` |
+| 系统 | Android 17 / API 37，x86_64（`system-images/android-37.0/default/x86_64`） |
+| 构建 | `ro.build.type=userdebug`、`ro.debuggable=1`；`adb root` 直接可用，`/system/xbin/su` 存在 → **可 root** |
+| 商店镜像 | `PlayStore.enabled=false`（Play Store 镜像不可 root） |
+| 工具链 | emulator 37.2.13；SDK `~/Android/Sdk`（platform-tools 37.0.2 / build-tools 36.0.0 / platforms;android-36） |
 
-### 9.1 统一 ADB
-
-```bash
-mkdir -p ~/Android/Sdk
-ln -sfn ~/tools/platform-tools ~/Android/Sdk/platform-tools
-ln -sfn ~/tools/android-build-tools/36.0.0 ~/Android/Sdk/build-tools
-```
-
-Genymotion → `Settings → ADB → Use custom Android SDK tools` → `/home/m/Android/Sdk`。
-等价配置项 `android_sdk.path` 已写入 `~/.Genymobile/Genymotion/settings.json`，**重启 Genymotion 后生效**。
-这样 Genymotion 不再使用自带的 adb 29.0.2，而是与本仓库工具链共用 37.0.2。
+### 9.1 启动与 ADB
 
 ```bash
-adb devices -l      # 127.0.0.1:6555  device
+export ANDROID_HOME="$HOME/Android/Sdk"
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"
+
+emulator -list-avds                       # Medium_Phone_API_37.0 / Pixel_10_Pro
+emulator -avd Pixel_10_Pro                # 启动（可选 -no-snapshot-load 避免旧快照）
+adb devices -l                            # emulator-5554  device
+adb root                                  # userdebug: "adbd is already running as root"
+adb shell id                              # uid=0(root)
 ```
 
 ### 9.2 常用联动命令
@@ -348,52 +346,44 @@ adb uninstall <pkg>
 adb logcat -v time
 adb exec-out screencap -p > shot.png
 adb pull /data/local/tmp/x .
-adb shell getprop ro.product.cpu.abi     # x86_64
+adb shell getprop ro.product.cpu.abi       # x86_64
 ```
 
-### 9.3 Frida：两种模式
+### 9.3 Frida
 
-**（1）frida-server —— 需要 root**
+**（1）frida-server —— 本机默认（root 可用，已验证）**
 
 ```bash
-# 按需下载（frida 17.26.2）：frida-server-17.26.2-android-x86_64.xz
-#   https://github.com/frida/frida/releases/tag/17.26.2（本网络走 api.github.com asset 接口）
-# 解压后放到 ~/tools/frida/frida-server-17.26.2-android-x86_64
-adb push ~/tools/frida/frida-server-17.26.2-android-x86_64 /data/local/tmp/frida-server
-adb shell chmod 755 /data/local/tmp/frida-server
-adb shell su -c '/data/local/tmp/frida-server &'
+# 二进制：~/tools/frida/frida-server-17.26.2-android-x86_64
+bash skills/apk-reverse/scripts/frida-server-android.sh
+#   push → chmod → 停旧进程 → setsid 启动 0.0.0.0:27042 → 校验 frida-ps
+
+frida-ps -U
+frida -U -f com.android.settings -q -e "console.log(Process.id + ' ' + Process.arch)"
+# 实测输出: Spawned ... / spawn-ok pid=2887 arch=x64 / java-ok
 ```
 
-本机设备非 root：`adb root` 返回 `adbd cannot run as root because the device is not rooted`，`su` 不存在，因此该模式当前不可用。
+- 模拟器重启后 frida-server 不会自启，重新执行脚本即可
+- 需要远程连接时再 `adb forward tcp:27042 tcp:27042`（Gadget 模式必需）
 
-**（2）Gadget 注入 —— 无需 root（本机当前可用）**
+**（2）Gadget —— 非 root 镜像（Play Store）备用**
 
 ```bash
-# 资源：~/tools/frida-gadget/frida-gadget-x86_64.so（17.26.2）
-bash skills/apk-reverse/scripts/gadget-inject.sh demo.apk --install
+bash skills/apk-reverse/scripts/gadget-inject.sh app.apk --install
 adb forward tcp:27042 tcp:27042
-frida-ps -H 127.0.0.1:27042            # 进程名显示为 Gadget
-frida -H 127.0.0.1:27042 -n Gadget -q -e "console.log(Process.id + ' ' + Process.arch)"
+frida -H 127.0.0.1:27042 -n Gadget -q -e "console.log(Process.id)"
 ```
 
-- 注入点：优先复用 `AndroidManifest.xml` 中 `android:name` 声明的 Application 类（写入 `<clinit>`）；未声明时新建 `com.reverse.gadget.GadgetApp` 并写入 Manifest
-- Gadget 在设备内监听 `127.0.0.1:27042`；`frida-ps` 中进程名为 **Gadget**，不是包名
-- **listen 模式要求目标 App 声明 `android.permission.INTERNET`**，否则报 `Unable to create socket: Operation not permitted`
-- 系统 App（如 Gallery2）签名不同，无法覆盖安装；请对第三方 APK 使用
-- 本机已用自建 demo APK 验证全链路：apktool 反编译 → 新建 GadgetApp 注入 → 重签 → 安装 → 启动 → `frida -H` 连接成功
-- 脚本模式：传入 gadget 配置
+Gadget 的注入点、INTERNET 权限要求、系统 App 限制见脚本说明与 `skills/apk-reverse/SKILL.md`。
 
-```json
-{"interaction": {"type": "script", "path": "/data/local/tmp/hook.js"}}
-```
+### 9.4 与 Genymotion 的差异（已卸载）
 
-`--config hook.json` 会把它打包成 `libgadget.config.so`，随 APK 启动加载。
-
-### 9.4 Root 说明
-
-- `gmtool admin edit --root-access on` 需要有效 license（本机提示 `A license is required to use this feature`）
-- 若之后在 GUI 中成功启用 Root access，`adb root` / `su` 可用，frida-server 模式即可生效
-- 在此之前，动态 hook 请走 Gadget 路线
+| 能力 | Genymotion | AVD（Pixel_10_Pro） |
+|---|---|---|
+| root | 需有效 license | userdebug 默认 root，`adb root` 即可 |
+| adb 序列号 | `127.0.0.1:6555` | `emulator-5554` |
+| frida-server | 不可用（无 root） | 可用（spawn + Java.perform 已验证） |
+| 系统镜像 | 自带 vbox86p | `system-images/android-37.0/default/x86_64` |
 
 ## 10. 一键验收清单
 
@@ -415,9 +405,10 @@ docker run --rm --cap-add=NET_RAW fb0sh/dsh-pentester-kali:latest nmap --version
 # dsh-pentester 技能包
 find ~/.dsh/dsh-pentester/skill-packs/*/skills -name SKILL.md | wc -l   # 1011
 
-# Android 模拟器
-adb devices -l                                   # 127.0.0.1:6555
-frida-ls-devices | grep 6555                     # 可见 Phone (Android 12)
+# Android 模拟器（AVD）
+adb devices -l                                   # emulator-5554
+adb shell id                                     # uid=0(root)
+frida-ps -U | head -3                            # 设备进程列表
 ```
 
 ---

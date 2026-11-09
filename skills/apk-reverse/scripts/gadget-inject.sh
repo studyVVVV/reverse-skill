@@ -2,7 +2,7 @@
 # gadget-inject.sh — 把 Frida Gadget 注入 APK（无需 root / 无需 Frida Server）
 #
 # 适用场景：
-#   - 模拟器或真机没有 root（Genymotion 免费版、非调试固件）
+#   - 模拟器或真机没有 root（Play Store 镜像、非调试固件）
 #   - 需要 hook 目标 App，但不能运行 frida-server
 #
 # 用法:
