@@ -285,7 +285,7 @@ certipy --version 2>&1 | head -1
 # ─── Kali 原生 MCP ───
 which kali-server-mcp && echo "mcp-kali-server OK"
 which metasploitmcp && echo "metasploitmcp OK"
-which hexstrike-ai && echo "hexstrike-ai OK"
+which hexstrike_mcp && echo "hexstrike-ai MCP 客户端 OK"
 
 # ─── 刷新工具索引 ───
 bash kali/scripts/refresh-tool-index.sh

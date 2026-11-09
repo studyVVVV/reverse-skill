@@ -398,6 +398,7 @@ install_manifest_release() {
 ensure_capability() {
     local name="$1"
     local verify_command="$name"
+    local cap_rc=0
     if [[ "$name" == "pwntools" ]]; then
         verify_command="pwn"
     fi
@@ -501,11 +502,14 @@ ensure_capability() {
             ;;
         hexstrike-ai)
             install_apt_package "hexstrike-ai"
+            # 包内实际入口: hexstrike_server（API 服务, 127.0.0.1:8888）与 hexstrike_mcp（MCP 客户端）
             register_mcp_server "hexstrike" '{
-                "command": "hexstrike-ai",
+                "command": "hexstrike_mcp",
                 "args": []
             }'
             log_info "HexStrike AI 已安装。150+ 安全工具通过 MCP 暴露给 AI agent。"
+            log_info "  先启动 API: hexstrike_server   （默认 http://127.0.0.1:8888）"
+            log_info "  MCP 客户端: hexstrike_mcp --server http://127.0.0.1:8888"
             ;;
         # ─── Pentest Swarm AI（群体智能渗透框架） ───
         pentestswarm)
@@ -547,9 +551,9 @@ ensure_capability() {
             install_git_commit \
                 "https://github.com/honmashironeko/ProxyCat.git" \
                 "2309b713e2e4f574df14c2ace7e8fa6c00eb6941" \
-                "$proxycat_dir"
+                "$proxycat_dir" || return 1
             pip3 install --upgrade -r "$proxycat_dir/requirements.txt" --break-system-packages 2>/dev/null \
-                || pip3 install --upgrade -r "$proxycat_dir/requirements.txt"
+                || pip3 install --upgrade -r "$proxycat_dir/requirements.txt" || return 1
             local proxycat_bin_dir="$HOME/.local/bin"
             local proxycat_wrapper="$proxycat_bin_dir/proxycat"
             mkdir -p "$proxycat_bin_dir"
@@ -569,7 +573,7 @@ EOF
 
         # ─── GitHub Release ───
         jadx)
-            install_manifest_release "jadx"
+            install_manifest_release "jadx" || return 1
             chmod +x "$HOME/tools/jadx/bin/jadx" 2>/dev/null || true
             ;;
         ghidra-mcp)
@@ -647,7 +651,7 @@ EOF
             ;;
         idapro)
             # 先确保 idalib-mcp 已安装
-            ensure_capability "idalib-mcp"
+            ensure_capability "idalib-mcp" || return 1
             register_mcp_server "idapro" "{\"url\": \"http://127.0.0.1:13337/mcp\"}"
             if [[ "$START_SERVICES" == "true" ]]; then
                 start_idapro_service
@@ -666,6 +670,29 @@ EOF
             return 1
             ;;
     esac
+
+    # 分支自身的失败必须原样返回，不能被后续校验步骤覆盖成成功。
+    cap_rc=$?
+    if [[ "$cap_rc" -ne 0 ]]; then
+        return "$cap_rc"
+    fi
+
+    # ─── 安装后校验 ─────────────────────────────────────────────────────────────
+    # 分支里“安装命令失败但后续命令成功”会掩盖失败（例如 jadx 的 chmod || true）。
+    # 以 manifest 的 verifyCommand 为准，确认能力真的可执行，否则判定安装失败。
+    if [[ "$LAST_CAPABILITY_MANUAL" == "true" ]]; then
+        return 0
+    fi
+    local manifest_verify=''
+    if [[ -f "$KALI_MANIFEST" ]] && command -v jq &>/dev/null; then
+        manifest_verify=$(jq -r --arg n "$name" \
+            '.capabilities[] | select(.name == $n) | .verifyCommand // empty' \
+            "$KALI_MANIFEST" 2>/dev/null | head -n1)
+    fi
+    if [[ -n "$manifest_verify" ]] && ! command -v "$manifest_verify" &>/dev/null; then
+        log_err "安装后校验失败: $name（未找到可执行命令: $manifest_verify）"
+        return 1
+    fi
 }
 
 # ─── 服务启动 ──────────────────────────────────────────────────────────────────────

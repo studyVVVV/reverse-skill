@@ -437,7 +437,7 @@
       ],
       "docsUrl": "https://github.com/0x4m4/hexstrike-ai",
       "canAutoInstall": true,
-      "verifyCommand": "hexstrike-ai",
+      "verifyCommand": "hexstrike_mcp",
       "kaliNote": "Kali 2025.4 新增。AI MCP 安全自动化平台，150+ 安全工具通过 MCP 协议暴露给 AI agent。"
     },
     {
@@ -446,7 +446,7 @@
       "aptPackage": "adaptixc2",
       "docsUrl": "https://www.kali.org/tools/adaptixc2/",
       "canAutoInstall": true,
-      "verifyCommand": "AdaptixServer",
+      "verifyCommand": "adaptixserver",
       "kaliNote": "Kali 2026.1 新增。可扩展后渗透与对抗模拟框架。"
     },
     {

@@ -187,7 +187,7 @@ bash "<本包根目录>/kali/scripts/refresh-tool-index.sh"
 |------|------|------|------|---------|
 | mcp-kali-server | mcp-kali-server | 5000 | Kali 官方 MCP，AI 直接调用终端工具 | `kali-server-mcp --port 5000` |
 | MetasploitMCP | metasploitmcp | 8085/stdio | Metasploit Framework MCP 接口 | `metasploitmcp --transport stdio` |
-| HexStrike AI | hexstrike-ai | — | 150+ 安全工具 MCP 自动化平台 | `hexstrike-ai` |
+| HexStrike AI | hexstrike-ai | — | 150+ 安全工具 MCP 自动化平台 | `hexstrike_server`（API）+ `hexstrike_mcp`（MCP 客户端） |
 
 ### 第三方 MCP 服务
 
