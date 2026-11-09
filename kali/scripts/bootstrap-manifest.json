@@ -270,13 +270,13 @@
       "postInstallSteps": [
         "下载 GhidraMCP 插件: https://github.com/LaurieWired/GhidraMCP/releases",
         "将插件 zip 安装到 Ghidra: File → Install Extensions → 选择下载的 zip",
-        "MCP server 在 Ghidra 项目打开后自动监听 localhost:8765"
+        "MCP server（GhidraMCP 2.0 插件）在 Ghidra 打开程序后自动监听 127.0.0.1:8080"
       ],
       "mcpNames": [
         "ghidra"
       ],
-      "mcpUrl": "http://localhost:8765/mcp",
-      "servicePort": 8765,
+      "mcpUrl": "http://127.0.0.1:8080/mcp",
+      "servicePort": 8080,
       "verificationMode": "service-or-registration",
       "kaliNote": "apt install ghidra 或从 GitHub 下载",
       "preferApiDigest": true
@@ -511,31 +511,6 @@
       "canAutoInstall": true,
       "verifyCommand": "evil-winrm-py",
       "kaliNote": "Kali 2025.4 新增。Python 版 WinRM 远程命令执行，用于 Windows 后渗透。"
-    },
-    {
-      "name": "pentestswarm",
-      "bootstrapKind": "go-install",
-      "goPackage": "github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@v0.1.0",
-      "fallbackKind": "docker-image",
-      "dockerImage": "ghcr.io/armur-ai/pentestswarm:v0.1.0",
-      "mcpNames": [
-        "pentestswarm"
-      ],
-      "mcpCommand": "pentestswarm",
-      "mcpArgs": [
-        "mcp",
-        "serve"
-      ],
-      "docsUrl": "https://github.com/Armur-Ai/Pentest-Swarm-AI",
-      "canAutoInstall": true,
-      "verifyCommand": "pentestswarm",
-      "dependencies": [
-        "go",
-        "postgres",
-        "redis"
-      ],
-      "kaliNote": "群体智能渗透框架。go install 或 Docker 运行。支持 MCP server 模式（pentestswarm mcp serve）。需要 Claude/Ollama API key。",
-      "pinnedVersion": "v0.1.0"
     },
     {
       "name": "coercer",

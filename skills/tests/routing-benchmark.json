@@ -113,12 +113,12 @@
     },
     {
       "hint": "反汇编 静态分析 二进制",
-      "expect": "R6",
+      "expect": "R22",
       "quick": false
     },
     {
       "hint": "r2 disassemble",
-      "expect": "R6",
+      "expect": "R7",
       "quick": false
     },
     {
@@ -339,6 +339,16 @@
     {
       "hint": "无 IDA 用 ghidra 反编译",
       "expect": "R22",
+      "quick": false
+    },
+    {
+      "hint": "decompile ELF binary",
+      "expect": "R22",
+      "quick": false
+    },
+    {
+      "hint": "IDA Pro 反编译 dll",
+      "expect": "R6",
       "quick": false
     },
     {
@@ -733,7 +743,7 @@
     },
     {
       "hint": "so 文件 native 分析",
-      "expect": "R6",
+      "expect": "R22",
       "quick": false
     },
     {

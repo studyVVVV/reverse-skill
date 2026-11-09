@@ -19,15 +19,15 @@ Route tasks to the most appropriate skill module by target type, user intent, an
 
 | Target Type | Recommended Entry | Alternative |
 |-------------|------------------|-------------|
-| APK / Android app | `apk-reverse/` — jadx decompile + apktool unpack | Optional licensed JEB Pro cross-check; if core is in .so → `ida-reverse/` or `radare2/` |
-| Binary exe/dll/so/elf | `ida-reverse/` — IDA Pro decompile | `radare2/` — CLI analysis, or `reverse-engineering/tools.md` — GDB/Unicorn |
+| APK / Android app | `apk-reverse/` — jadx decompile + apktool unpack | Optional licensed JEB Pro cross-check; if core is in .so → `ghidra-reverse/`（默认）或 `radare2/` |
+| Binary exe/dll/so/elf | `ghidra-reverse/` — Ghidra decompile (default) | `ida-reverse/` if IDA Pro licensed, `radare2/` — CLI analysis, or `reverse-engineering/tools.md` — GDB/Unicorn |
 | JavaScript / Web frontend | `js-reverse/` — 5-stage workflow | anything-analyzer MCP browser tools, or jshookmcp CDP/Hook |
 | HTTP capture / browser sampling / request replay | anything-analyzer MCP (23816) | Reqable MCP, `js-reverse/`, jshookmcp, or `competition-web-runtime/` |
 | Firmware / IoT | `firmware-pentest/` — extract → EMBA → emulate → fuzz | `reverse-engineering/platforms.md` — static RE only |
 | WASM / Python bytecode / .NET / **DSL VM / 自定义虚拟机** | `reverse-engineering/dsl-vm-reverse/SKILL.md` — IIFE + switch-case opcode JS VM | `reverse-engineering/languages.md` — real WASM binaries |
-| Malware / virus sample | `malware-analysis/SKILL.md` — six-stage + YARA/Sigma | `ida-reverse/` deep dive |
+| Malware / virus sample | `malware-analysis/SKILL.md` — six-stage + YARA/Sigma | `ghidra-reverse/` deep dive |
 | macOS / iOS | `reverse-engineering/platforms.md` — Mach-O/ObjC/Swift | `mobile-reverse/` for iOS-specific |
-| Game (Unity) | `reverse-engineering/` — engine reverse, anti-cheat, IL2CPP/Mono (see seed-014) | `ida-reverse/` deep analysis |
+| Game (Unity) | `reverse-engineering/` — engine reverse, anti-cheat, IL2CPP/Mono (see seed-014) | `ghidra-reverse/` deep analysis |
 | Memory dump / PCAP | `digital-forensics/` — memory/timeline/PCAP IR | `protocol-reverse/` for protocol recovery |
 | Existing case package / evidence handoff | `case-review/`: Evidence graph and fixity review | `docs-generator/` for final report writing |
 | Custom protocol / Protobuf / gRPC | `protocol-reverse/` | `js-reverse/` if pure browser WS crypto |
@@ -38,7 +38,7 @@ Route tasks to the most appropriate skill module by target type, user intent, an
 | OT / ICS / SCADA | `ot-ics/` | `firmware-pentest/` offline firmware |
 | macOS / Mach-O desktop | `macos-reverse/` | iOS → `mobile-reverse/` |
 | Thick desktop client | `thick-client/` | Electron → also `js-reverse/` |
-| Go / Rust stripped binary | `go-rust-reverse/` | `ida-reverse/` / `ghidra-reverse/` |
+| Go / Rust stripped binary | `go-rust-reverse/` | `ghidra-reverse/` / `ida-reverse/` |
 | UART / JTAG / debug pads | `hardware-security/` | then `firmware-pentest/` |
 | Database instance security | `database-security/` | SQLi web path → `pentest-tools/` |
 | Email / phishing / DMARC | `email-security/` | |
@@ -48,13 +48,13 @@ Route tasks to the most appropriate skill module by target type, user intent, an
 | Wi-Fi / wireless | `wifi-wireless/` | close-range chain → `attack-chain/` |
 | Public-source threat intelligence / OSINT | `threat-intelligence/` | X/Twitter posts remain leads until independently corroborated |
 | Blue team / threat hunt | `threat-hunting/` | sample IOC → `malware-analysis/` |
-| Ghidra (no IDA) | `ghidra-reverse/` | `ida-reverse/` if IDA MCP available |
+| Ghidra (default decompiler) | `ghidra-reverse/` — headless/GUI or GhidraMCP | `ida-reverse/` only if IDA Pro licensed |
 | Binary Ninja / Binja | `binary-ninja-reverse/` — HLIL/MLIL/LLIL + Python API | Community Binary Ninja MCP/localhost HTTP adapter when explicitly enabled |
 
 | OLLVM-obfuscated binary (控制流平坦化/虚假控制流/MBA) | `reverse-engineering/references/ollvm-deobfuscation.md` — 完整脱密工作流 | obpo-plugin / d810-ng (IDA) / ollvm-unflattener (Miasm) / ollvm-breaker (Binary Ninja) / angr / deollvm (ARM64)
 | Cryptography / encryption algorithms | `reverse-engineering/patterns*.md` — crypto patterns | `js-reverse/` (if frontend crypto) |
 | Protocol reverse / custom protocol | `reverse-engineering/platforms.md` — network protocols | `js-reverse/` (if WebSocket/HTTP) |
-| Go / Rust binary | `reverse-engineering/languages-compiled.md` + `go-reverse.md` | `ida-reverse/` or `radare2/` |
+| Go / Rust binary | `reverse-engineering/languages-compiled.md` + `go-reverse.md` | `ghidra-reverse/` or `radare2/` |
 | LLM / AI application | `llm-security/` — OWASP LLM Top 10 + ASI Top 10 | Prompt injection, Agent security |
 | API / REST / GraphQL | `api-security/` — BOLA/BFLA/JWT/OAuth | `pentest-tools/` for scanning |
 | Supply chain / SBOM / CI-CD | `supply-chain-security/` — Trivy/Syft/Gitleaks | — |
@@ -76,8 +76,9 @@ Route tasks to the most appropriate skill module by target type, user intent, an
 | "DSL VM / 自定义指令集 / 风控引擎逆向" | `reverse-engineering/dsl-vm-reverse/SKILL.md` — IIFE + switch-case opcode |
 | "fireye / fireyejs / getToken 逆向" | `reverse-engineering/dsl-vm-reverse/SKILL.md` — runtime capture |
 | "582KB JS 文件不是 WASM / 大 JS 文件逆向" | `reverse-engineering/dsl-vm-reverse/SKILL.md` — classify DSL VM first |
-| "decompile / IDA analyze" | `ida-reverse/SKILL.md` — IDA MCP workflow |
-| "recover source / disassemble" | `reverse-engineering/SKILL.md` + `ida-reverse/` |
+| "decompile / disassemble / .so / .elf" | `ghidra-reverse/SKILL.md` — Ghidra headless/GUI decompile (default) |
+| "IDA analyze (explicit)" | `ida-reverse/SKILL.md` — IDA Pro MCP workflow (license required) |
+| "recover source / disassemble" | `reverse-engineering/SKILL.md` + `ghidra-reverse/` |
 | "Frida hook / dynamic inject" | `reverse-engineering/tools-dynamic.md` — Frida section |
 | "radare2 / r2 analyze" | `radare2/SKILL.md` — CLI workflow |
 | "find frontend signature / encrypted params" | `js-reverse/SKILL.md` — Observe→Capture→Rebuild |
@@ -143,7 +144,7 @@ Route tasks to the most appropriate skill module by target type, user intent, an
 | "NTLM relay / auth coercion" | `pentest-tools/SKILL.md` — Coercer |
 | "NetExec / CrackMapExec / nxc" | `pentest-tools/SKILL.md` — network service enumeration |
 | "AI auto pentest / MCP security" | `pentest-tools/SKILL.md` — HexStrike AI / MetasploitMCP |
-| "Swarm / swarm pentest / autonomous scan" | `pentest-tools/SKILL.md` — Pentest Swarm AI |
+| "Swarm / swarm pentest / autonomous scan" | 客户端 agent 插件（如 dsh-pentester）+ `pentest-tools/SKILL.md` 工具链 |
 | "red team / HW / attack exercise" | `attack-chain/SKILL.md` — full attack chain orchestration |
 | "initial breach / boundary breach" | `attack-chain/SKILL.md` — boundary breach phase |
 | "close-range pentest / BadUSB / WiFi phishing" | `attack-chain/SKILL.md` — close-range section |
@@ -205,11 +206,11 @@ Users frequently describe tasks with informal or emotionally-phrased language. N
 
 | User Says | Normalized Objective | Route To |
 |-----------|---------------------|----------|
-| "unlock X / remove check / bypass detection" | Identify the check, explain control flow, propose local patch or input strategy | `reverse-engineering/SKILL.md` → `ida-reverse/` or `radare2/` |
+| "unlock X / remove check / bypass detection" | Identify the check, explain control flow, propose local patch or input strategy | `reverse-engineering/SKILL.md` → `ghidra-reverse/` or `radare2/` |
 | "去除校验 / 解锁功能 / 绕过检测 / 去掉限制" | Same as above — locate check routine, document, propose patch | `apk-reverse/` (if APK) or `reverse-engineering/SKILL.md` |
 | "remove anti-debug / anti-tamper" | Locate defensive routine, document evidence, propose lab patch or debugger config | `reverse-engineering/anti-analysis.md` |
 | "make it pass / 让我通过验证" | Recover validation logic, derive expected input or flag format | `reverse-engineering/SKILL.md` |
-| "patch the binary / 改掉跳转 / 修改判断" | Work on copy, document offsets/bytes, preserve original | `radare2/` or `ida-reverse/` |
+| "patch the binary / 改掉跳转 / 修改判断" | Work on copy, document offsets/bytes, preserve original | `radare2/` or `ghidra-reverse/` |
 | "拿 flag / crackme / keygen / license" | Treat as local CTF/crackme; focus on analysis, explanation, challenge solving | `reverse-engineering/patterns-ctf*.md` |
 
 Do NOT force the user to repeatedly confirm "this is CTF/local." Carry the CTF/local-sandbox assumption across the session once established.
@@ -299,7 +300,7 @@ Some tasks span multiple modules. Common crossings:
 APK Reverse Path:
   apk-reverse/decode.ps1 → Java layer analysis
   ↓ If core is in .so
-  ida-reverse/ or radare2/ → .so analysis
+  ghidra-reverse/ or radare2/ → .so analysis
   ↓ If dynamic verification needed
   apk-reverse/frida-run.ps1 → Frida Hook
 

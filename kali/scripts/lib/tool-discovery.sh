@@ -74,7 +74,6 @@ declare -a TOOL_CATALOG=(
     "gef|reverse-engineering|GDB Enhanced Features（现代化调试）||gdb"
     "evil-winrm-py|pentest-tools|Python WinRM 远程执行|-h|evil-winrm-py"
     "coercer|pentest-tools|Windows 认证强制（AD 攻击）|-h|coercer"
-    "pentestswarm|pentest-tools|群体智能自主渗透框架（Swarm AI）|--version|pentestswarm"
     # ─── Kali 经典预装但之前未列入的工具 ───
     "netexec|pentest-tools|网络服务枚举与利用（CrackMapExec 继任）|--help|nxc,netexec"
     "responder|pentest-tools|LLMNR/NBT-NS/MDNS 投毒|-h|responder"
@@ -124,7 +123,6 @@ declare -A SCRIPT_REFS=(
     ["xsstrike"]="pentest-tools/SKILL.md"
     ["wpprobe"]="pentest-tools/SKILL.md"
     ["coercer"]="pentest-tools/SKILL.md"
-    ["pentestswarm"]="pentest-tools/SKILL.md"
     ["evil-winrm-py"]="pentest-tools/SKILL.md"
     ["gef"]="reverse-engineering/SKILL.md"
     ["bkcrack"]="reverse-engineering/crypto-decode-tools.md,../CTF-Sandbox-Orchestrator/competition-zip-archive/SKILL.md"

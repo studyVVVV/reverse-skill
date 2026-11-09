@@ -1,9 +1,9 @@
 ---
 name: ida-reverse
 description: |
-  IDA Pro 逆向分析辅助技能。当用户提到逆向、反编译、分析二进制/PE/ELF/APK/DLL/SO、破解、找密码、漏洞分析、病毒分析、firmware 固件分析，或需要分析 exe/dll/so/elf/macho/sys 等文件时，务必使用此技能。
+  IDA Pro 逆向分析辅助技能。仅在用户显式要求 IDA Pro / idat / idalib / IDB，或本机确有 IDA 许可证并要求用 IDA 时使用。通用二进制反编译（exe/dll/so/elf、APK native、样本分析）默认走 ghidra-reverse/（R22）。
 
-  Ensure to use this skill when the user wants to analyze any binary file, regardless of whether they explicitly mention "IDA" or "reverse engineering". This includes requests like "看看这个exe", "分析这个dll", "帮我破解", "找一下密码", "这个软件怎么注册", etc.
+  Use this skill only when the user explicitly asks for IDA Pro (or has an IDA license and asks to use it). Requests like "看看这个exe", "分析这个dll", "帮我破解", "找一下密码" default to ghidra-reverse/ unless IDA is named.
 
   Use the bundled scripts (scripts/start.ps1, scripts/open.ps1) for deterministic server management and file opening — do NOT write ad-hoc PowerShell commands for these operations.
 ---

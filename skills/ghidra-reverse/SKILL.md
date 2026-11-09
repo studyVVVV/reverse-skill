@@ -1,6 +1,6 @@
 ---
 name: ghidra-reverse
-description: Use for free/open reverse engineering with Ghidra (headless or GUI), including decompile, cross-refs, and optional Ghidra MCP workflows when IDA is unavailable.
+description: Default binary decompilation/disassembly route (R22) using Ghidra (headless or GUI) — decompile, cross-refs, .so/.elf/PE analysis, and optional Ghidra MCP workflows. IDA is only used when explicitly requested (R6).
 ---
 
 # Ghidra Reverse Engineering
@@ -8,14 +8,14 @@ description: Use for free/open reverse engineering with Ghidra (headless or GUI)
 ## ACTION REQUIRED（读完后立刻执行）
 
 1. `NOW`: 读取 `../field-journal/precedent-reverse.md`
-2. `NOW`: 确认需要 **Ghidra**（无 IDA / 偏好开源 / 批量 headless）
+2. `NOW`: 确认需要 **Ghidra**（默认二进制反编译路线；IDA 仅显式点名时用）
 3. `NEXT`: 读 `../tool-index.md` 查 ghidra / ghidra-mcp 路径
 4. `NEXT`: 缺工具 → bootstrap `ghidra-mcp`（若 manifest 支持）或按手动步骤装 Ghidra
 5. `ACT`: 导入样本 → 自动分析 → 导出关键函数反编译
 
 ## 适用场景
 
-- 无 IDA 许可证时的主逆向入口
+- 默认二进制反编译入口（IDA 仅在显式点名时使用）
 - 批量 headless 分析 / CI 中反编译
 - Ghidra 脚本（Java/Python Jython/PyGhidra）自动化
 - 与 `binary-diff` / `patch-diff-exploit` 的 ghidriff 联动
@@ -24,8 +24,8 @@ description: Use for free/open reverse engineering with Ghidra (headless or GUI)
 
 | 需求 | 优先 |
 |------|------|
-| 已有 IDA MCP 深挖 | `ida-reverse/` |
-| 开源 / 批量 / 教学 | **本 skill** |
+| 通用反编译 / 反汇编 / .so/.elf 分析 | **本 skill**（默认） |
+| 用户显式要求 IDA Pro 且已授权 | `ida-reverse/` |
 | 仅 CLI 快速侦察 | `radare2/` |
 
 ## 工作流
@@ -54,12 +54,21 @@ description: Use for free/open reverse engineering with Ghidra (headless or GUI)
 analyzeHeadless /path/to/project Proj -import sample.bin -postScript ExportDecomp.py
 ```
 
-### 4. MCP（若已配置）
+### 4. MCP（GhidraMCP 2.0）
 
 ```text
-□ 确认 ghidra MCP 端口（常见 8765，以 tool-index 为准）
+□ 确认 ghidra MCP 端口（GhidraMCP 2.0 默认 8080，以 tool-index 为准）
 □ 用 MCP 工具拉反编译 / xrefs，禁止猜端口
 ```
+
+本机配置（Kali）：
+
+- 插件：`~/.config/ghidra/ghidra_12.1.4_DEV/Extensions/GhidraMCP`
+- HTTP 后端：Ghidra 打开程序后自动监听 `127.0.0.1:8080`
+- MCP 客户端：`ghidra-mcp --ghidra-server http://127.0.0.1:8080/`（stdio）
+- headless（PyGhidra）：本机已装 `/usr/bin/python3.13`（3.13.15），`~/.local/venvs/ghidra-mcp` 基于它构建（pyghidra 3.2.0）
+- 用法：`ghidra-mcp --headless --binary <sample>`，wrapper 已设置 `GHIDRA_INSTALL_DIR=/usr/share/ghidra`
+- 注意：系统默认 `python3` 仍是 3.14，pyghidra 不支持；不要用 3.14 重建该 venv
 
 ## 工具链
 

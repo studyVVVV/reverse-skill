@@ -51,7 +51,7 @@
       "label": "IDA reverse",
       "skill": "ida-reverse/SKILL.md",
       "keywords": [
-        { "must": "\\bida\\b|decompile|disassembl|反编译|反汇编|静态.?分析.?二进制|\\.so\\b|\\.elf\\b|so.?文件|native.?分析|jni", "note": ".so/.elf/native/JNI 分析归二进制静态分析（IDA/反汇编路线）" }
+        { "must": "\\bida\\b|ida.?pro|idat64|idalib|idb_open|idb_list", "exclude": "无.?ida|no.?ida|without.?ida|不用.?ida|替代.?ida|代替.?ida", "note": "仅显式点名 IDA 时命中；通用反编译/反汇编/二进制静态分析默认归 R22 Ghidra" }
       ]
     },
     "R7": {
@@ -173,7 +173,7 @@
       "label": "Ghidra reverse",
       "skill": "ghidra-reverse/SKILL.md",
       "keywords": [
-        { "must": "ghidra|ghidra.?mcp|analyzeheadless|无.?ida|开源.?反编译" }
+        { "must": "ghidra|ghidra.?mcp|analyzeheadless|无.?ida|no.?ida|开源.?反编译|decompile|disassembl|反编译|反汇编|静态.?分析.?二进制|\\.so\\b|\\.elf\\b|so.?文件|native.?分析|jni", "note": "Ghidra 为默认反编译/二进制静态分析路线（IDA 仅在显式点名时走 R6）" }
       ]
     },
     "R23": {
@@ -330,7 +330,7 @@
   },
   "priority": [
     "R4", "R1", "R2", "R3", "R30", "R31", "R33", "R5", "R9", "R21",
-    "R22", "R45", "R6", "R7", "R8", "R34", "R28", "R17", "R16", "R18", "R24",
+    "R7", "R6", "R22", "R45", "R8", "R34", "R28", "R17", "R16", "R18", "R24",
     "R37", "R23", "R35", "R25", "R44", "R36", "R29", "R38", "R32", "R26", "R27",
     "R10", "R11", "R12", "R13", "R14", "R15", "R19", "R40", "R20", "R39", "R41", "R0"
   ]

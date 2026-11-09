@@ -59,7 +59,7 @@
 - WinRM、evil-winrm、Windows 远程执行
 - NetExec、nxc、CrackMapExec、SMB 枚举
 - AI 自动渗透、HexStrike、MetasploitMCP、mcp-kali-server
-- Pentest Swarm、pentestswarm、群体渗透、Swarm AI、自主扫描、stigmergy
+- PTES 编排、群体渗透、自主扫描、攻击链编排
 - Bug Bounty 自动化、攻击面管理、ASM、持续监控
 - GEF、GDB 增强、调试框架
 - Wireshark、tshark、PCAP 分析、抓包分析
@@ -169,7 +169,7 @@ bash kali/scripts/bootstrap-reverse.sh jadx frida gef ghidra-mcp
 bash kali/scripts/bootstrap-reverse.sh sstimap xsstrike wpprobe nuclei
 ```
 
-支持的全部能力名：jadx、apktool、frida、idalib-mcp、jshookmcp、xquik-mcp、anything-analyzer、idapro、r2、rabin2、adb、agent-browser、ghidra-mcp、nmap、sqlmap、hashcat、hydra、gobuster、ffuf、msfconsole、nuclei、seclists、proxycat、mcp-kali-server、metasploitmcp、hexstrike-ai、pentestswarm、adaptixc2、atomic-operator、sstimap、xsstrike、wpprobe、fluxion、gef、evil-winrm-py、coercer、netexec、responder、crackmapexec、bloodhound、certipy、wfuzz、aircrack-ng
+支持的全部能力名：jadx、apktool、frida、idalib-mcp、jshookmcp、xquik-mcp、anything-analyzer、idapro、r2、rabin2、adb、agent-browser、ghidra-mcp、nmap、sqlmap、hashcat、hydra、gobuster、ffuf、msfconsole、nuclei、seclists、proxycat、mcp-kali-server、metasploitmcp、hexstrike-ai、adaptixc2、atomic-operator、sstimap、xsstrike、wpprobe、fluxion、gef、evil-winrm-py、coercer、netexec、responder、crackmapexec、bloodhound、certipy、wfuzz、aircrack-ng
 
 ## 刷新工具索引
 
@@ -193,18 +193,17 @@ bash "<本包根目录>/kali/scripts/refresh-tool-index.sh"
 
 | 服务 | 端口 | 用途 | 启动方式 |
 |------|------|------|---------|
-| Pentest Swarm AI | stdio | 群体智能自主渗透（recon→classify→exploit→report） | `pentestswarm mcp serve` |
 | idapro | 13337-13350 | IDA Pro 逆向工具 | `bash kali/scripts/ida-start.sh` |
 | anything-analyzer | 23816 | 浏览器自动化 + HTTP 捕获 | `cd ~/tools/anything-analyzer && pnpm dev` |
 | jshookmcp | — | JS Hook/CDP/Network/AST | `npx -y @jshookmcp/jshook@0.3.4`（stdio） |
-| ghidra | 8765 | Ghidra 免费反编译 | Ghidra GUI 启动后自动监听 |
+| ghidra | 8080 | Ghidra 免费反编译（GhidraMCP 2.0 插件内置 HTTP 后端） | Ghidra 打开程序后自动监听 127.0.0.1:8080 |
 | burpsuite | 9876 | BurpSuite Web 代理 | BurpSuite 扩展启动 |
 
 ### MCP 优先级建议（Kali 2026.1）
 
 对于渗透测试场景，推荐的 MCP 使用优先级：
 
-1. **pentestswarm** — 全自动群体渗透，适合大规模目标（1000+ 子域名）和 Bug Bounty 持续监控
+1. **客户端 agent 插件**（如 dsh-pentester）— PTES 全流程编排，适合大规模目标与持续监控；本仓库不绑定具体客户端
 2. **mcp-kali-server** — 最通用，可以调用 Kali 上任何终端工具
 3. **metasploitmcp** — Metasploit 专用，exploit/payload/session 管理
 4. **hexstrike-ai** — 自动化编排，适合多工具联动场景
@@ -212,7 +211,7 @@ bash "<本包根目录>/kali/scripts/refresh-tool-index.sh"
 
 一键配齐所有渗透 MCP：
 ```bash
-bash kali/scripts/bootstrap-reverse.sh mcp-kali-server metasploitmcp hexstrike-ai pentestswarm
+bash kali/scripts/bootstrap-reverse.sh mcp-kali-server metasploitmcp hexstrike-ai
 ```
 
 ---

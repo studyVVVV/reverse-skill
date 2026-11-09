@@ -459,16 +459,6 @@ function Get-ReverseToolCatalog {
             )
         }
         [pscustomobject]@{
-            Name = 'pentestswarm'
-            Skill = 'pentest-tools'
-            Purpose = '群体智能自主渗透与 MCP 执行'
-            FixedVersion = 'v0.5.0'
-            VersionArgs = @()
-            Fallbacks = @(
-                [pscustomobject]@{ Type = 'command'; Value = 'pentestswarm' }
-            )
-        }
-        [pscustomobject]@{
             Name = 'nmap'
             Skill = 'pentest-tools'
             Purpose = '端口扫描与服务识别'

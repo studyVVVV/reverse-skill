@@ -15,14 +15,6 @@
       "args": [],
       "_comment": "HexStrike AI MCP。apt install hexstrike-ai。150+ 安全工具自动化编排。"
     },
-    "pentestswarm": {
-      "command": "pentestswarm",
-      "args": ["mcp", "serve"],
-      "env": {
-        "PENTESTSWARM_ORCHESTRATOR_API_KEY": "<your-claude-or-ollama-key>"
-      },
-      "_comment": "Pentest Swarm AI。群体智能自主渗透框架。go install 或 Docker。支持 --swarm 模式。"
-    },
     "jshook": {
       "command": "npx",
       "args": ["-y", "@jshookmcp/jshook@0.3.4"],
@@ -40,7 +32,7 @@
       "_comment": "IDA Pro MCP。需要 IDA Pro Linux 版 + ida-pro-mcp 插件。端口可能递增到 13350。"
     },
     "ghidra": {
-      "url": "http://localhost:8765/mcp",
+      "url": "http://127.0.0.1:8080/mcp",
       "_comment": "Ghidra MCP。apt install ghidra + GhidraMCP 插件。免费 IDA 替代。"
     }
   }

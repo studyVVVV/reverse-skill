@@ -183,7 +183,7 @@ Usage:
 Capabilities (parity with bootstrap-reverse.ps1):
   jadx apktool frida frida-ps idalib-mcp jshookmcp reqable-mcp xquik-mcp anything-analyzer idapro
   r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp
-  nmap pentestswarm binwalk yara pwntools
+  nmap binwalk yara pwntools
 
 Examples:
   bash skills/scripts/bootstrap-reverse.sh jadx apktool frida
@@ -204,7 +204,7 @@ EOF
 ALL_CAPABILITIES=(
   jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp xquik-mcp anything-analyzer idapro
   r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp
-  nmap pentestswarm binwalk yara pwntools
+  nmap binwalk yara pwntools
 )
 
 if $LIST_ONLY; then
@@ -909,56 +909,6 @@ ensure_nmap() {
   case "$PLATFORM" in macos) install_brew nmap ;; linux) install_apt nmap ;; esac
 }
 
-register_pentestswarm_mcp() {
-  local executable="$1"
-  local definition
-  definition=$(python3 - "$executable" <<'PY'
-import json, sys
-print(json.dumps({"command": sys.argv[1], "args": ["mcp", "serve"]}))
-PY
-)
-  write_mcp_server "pentestswarm" "$definition"
-}
-
-ensure_pentestswarm() {
-  local pentestswarm_path
-  pentestswarm_path="$(cmd_path pentestswarm)"
-  if [[ -n "$pentestswarm_path" ]]; then
-    register_pentestswarm_mcp "$pentestswarm_path"
-    log_ok "pentestswarm ready"
-    return 0
-  fi
-  if ! has_cmd go; then
-    case "$PLATFORM" in macos) install_brew go ;; linux) install_apt golang-go ;; esac
-  fi
-  local go_package docker_image
-  go_package=$(manifest_field pentestswarm goPackage) || return 1
-  docker_image=$(manifest_field pentestswarm dockerImage) || return 1
-  if go install "$go_package"; then
-    local go_bin
-    go_bin="$(go env GOBIN 2>/dev/null || true)"
-    if [[ -z "$go_bin" ]]; then
-      go_bin="$(go env GOPATH 2>/dev/null || true)/bin"
-    fi
-    if [[ -x "$go_bin/pentestswarm" ]]; then
-      register_pentestswarm_mcp "$go_bin/pentestswarm"
-      log_ok "pentestswarm installed and registered"
-      return 0
-    fi
-    log_warn "pentestswarm installed but no executable was found in GOBIN/GOPATH; trying Docker fallback"
-  fi
-  if has_cmd docker; then
-    write_mcp_server "pentestswarm" "$(python3 - "$docker_image" <<'PY'
-import json, sys
-print(json.dumps({'command':'docker','args':['run','--rm','-i',sys.argv[1],'mcp','serve']}))
-PY
-)"
-    log_warn "pentestswarm Go install failed or produced no runnable binary; prepared Docker fallback $docker_image"
-  else
-    manual_required pentestswarm "Install Go 1.24+ or Docker, then install Pentest-Swarm-AI and ensure pentestswarm is on PATH."
-  fi
-}
-
 ensure_binwalk() {
   if has_cmd binwalk; then log_ok "binwalk ready: $(cmd_path binwalk)"; return 0; fi
   case "$PLATFORM" in
@@ -1039,7 +989,6 @@ ensure_capability() {
     proxycat) ensure_proxycat ;;
     burpsuite-mcp) ensure_burpsuite_mcp ;;
     nmap) ensure_nmap ;;
-    pentestswarm) ensure_pentestswarm ;;
     binwalk) ensure_binwalk ;;
     yara) ensure_yara ;;
     pwntools) ensure_pwntools ;;

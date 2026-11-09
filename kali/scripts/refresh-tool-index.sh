@@ -86,6 +86,7 @@ GENERATED_AT=$(date '+%Y-%m-%d %H:%M:%S %z')
         case "$cap_name" in
             jshookmcp) mcp_name="jshook" ;;
             xquik-mcp) mcp_name="xquik" ;;
+            ghidra-mcp) mcp_name="ghidra" ;;
         esac
         mcp_check=$(check_mcp_registered "$mcp_name")
         if [[ "$mcp_check" == "true" ]]; then
@@ -102,7 +103,7 @@ GENERATED_AT=$(date '+%Y-%m-%d %H:%M:%S %z')
                 if test_tcp_port 23816 2>/dev/null; then service_online="✓"; fi
                 ;;
             ghidra-mcp)
-                if test_tcp_port 8765 2>/dev/null; then service_online="✓"; fi
+                if test_tcp_port 8080 2>/dev/null; then service_online="✓"; fi
                 ;;
             burpsuite-mcp)
                 if test_tcp_port 9876 2>/dev/null; then service_online="✓"; fi

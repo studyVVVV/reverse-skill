@@ -299,7 +299,6 @@ This project (`reverse-skill`) is primarily licensed under the **MIT License** (
 
 **Submodule and third-party dependencies:**
 - **CTF-Sandbox-Orchestrator/**: **GNU GPLv3**
-- **Pentest Swarm AI**: Original project is **AGPL-3.0**. This repo only invokes it via CLI or MCP and does not include its source code
 - Other tools (jadx, frida, nmap, burpsuite-mcp, etc.) are subject to their respective official licenses
 
 <p align="right">(<a href="#license">back to top</a>)</p>

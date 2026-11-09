@@ -637,7 +637,7 @@ touch -t 202301010000 /path/to/file
 | 逆向分析恶意样本 | `reverse-engineering/SKILL.md` |
 | APK 逆向（移动端渗透） | `apk-reverse/SKILL.md` |
 | JS 前端签名绕过 | `js-reverse/SKILL.md` |
-| 自动化群体渗透 | Pentest Swarm AI（`pentestswarm scan --swarm`） |
+| 自动化群体渗透 | 客户端 agent 插件（如 dsh-pentester） |
 | AI 辅助渗透 | `mcp-kali-server` / `metasploitmcp` / `hexstrike-ai` |
 | 报告生成 | `docs-generator/SKILL.md` |
 | 攻击路径图 | `diagram-generator/SKILL.md` |

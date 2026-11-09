@@ -209,7 +209,7 @@ After task completion (vulnerability verified / reverse complete / flag captured
 | idapro | 13337-13350 | IDA Pro 72 reverse tools | Auto-start (IDA plugin), port increments per instance |
 | anything-analyzer | 23816 | Browser automation + HTTP capture | `pnpm dev` (project dir) |
 | jshookmcp | — | JS Hook/CDP/Network/AST | `npx -y @jshookmcp/jshook@0.3.4` (stdio) |
-| ghidra | 8765 | Ghidra free decompiler | Ghidra GUI auto-listens after launch |
+| ghidra | 8080 | Ghidra free decompiler (GhidraMCP 2.0 plugin HTTP backend) | Listens on 127.0.0.1:8080 once a program is open |
 | burpsuite | 9876 | BurpSuite 78-tool full control (Proxy/Intruder/Repeater/Scanner/Collaborator) | Burp extension auto-loads |
 
 ---
@@ -330,7 +330,7 @@ Windows (PowerShell):
 powershell -NoProfile -ExecutionPolicy Bypass -File "<SKILL_ROOT>/skills/scripts/bootstrap-reverse.ps1" -Capability @('tool_name') -StartServices
 
 Supported capability names (must match `skills/scripts/bootstrap-manifest.json`):  
-jadx, apktool, jeb-pro, binaryninja, frida, frida-ps, idalib-mcp, reqable-mcp, jshookmcp, xquik-mcp, anything-analyzer, idapro, r2, rabin2, adb, agent-browser, ghidra-mcp, seclists, proxycat, burpsuite-mcp, nmap, pentestswarm, binwalk, yara, pwntools, bkcrack
+jadx, apktool, jeb-pro, binaryninja, frida, frida-ps, idalib-mcp, reqable-mcp, jshookmcp, xquik-mcp, anything-analyzer, idapro, r2, rabin2, adb, agent-browser, ghidra-mcp, seclists, proxycat, burpsuite-mcp, nmap, binwalk, yara, pwntools, bkcrack
 
 Do NOT invent capabilities. Tools not listed require manual install steps in the skill docs.
 ```

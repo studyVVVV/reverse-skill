@@ -1037,7 +1037,7 @@ function Ensure-Capability {
                 }
                 Write-Warning "go install failed for $Name (exit code $LASTEXITCODE)."
             }
-            # Docker fallback (parity with bootstrap-reverse.sh ensure_pentestswarm)
+            # Docker fallback (parity with bootstrap-reverse.sh go-install Docker fallback)
             if ($definition.PSObject.Properties['fallbackKind'] -and $definition.fallbackKind -eq 'docker-image' -and $definition.PSObject.Properties['dockerImage']) {
                 $docker = Get-FirstCommandPath -Names @('docker')
                 if (-not [string]::IsNullOrWhiteSpace($docker)) {

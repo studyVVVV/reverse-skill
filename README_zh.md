@@ -294,7 +294,6 @@ GitHub Actions 会在 Windows 与 Ubuntu 上执行同一套核心检查。
 
 **子模块与第三方依赖：**
 - **CTF-Sandbox-Orchestrator/**：**GNU GPLv3**
-- **Pentest Swarm AI**：原始项目为 **AGPL-3.0**，本仓库仅通过命令行/MCP 调用，不包含其源代码
 - 其他工具（jadx、frida、nmap、burpsuite-mcp 等）遵循各自官方许可
 
 <p align="right">(<a href="#许可证">返回顶部</a>)</p>

@@ -18,7 +18,7 @@
 |---------|---------|---------|
 | APK / Android 应用 | `mobile-reverse/SKILL.md` — Frida/Objection/MobSF 全平台移动逆向 | `apk-reverse/` — 静态分析、jadx 反编译；可选已许可的 JEB Pro 交叉验证 |
 | iOS / IPA 应用 | `mobile-reverse/SKILL.md` — iOS 逆向 + Frida/Objection | `mobile-reverse/references/ios-reverse-guide.md` — iOS 专项 |
-| 二进制 exe/dll/so/elf | `ida-reverse/` — IDA Pro 反编译 | `radare2/` — CLI 分析，或 `reverse-engineering/tools.md` — GDB/Unicorn |
+| 二进制 exe/dll/so/elf | `ghidra-reverse/` — Ghidra 反编译（默认） | `ida-reverse/`（需 IDA 许可）、`radare2/` — CLI 分析，或 GDB/Unicorn |
 | JavaScript / Web 前端 | `js-reverse/` — 5 阶段工作流 | anything-analyzer MCP 的浏览器工具，或 jshookmcp 的浏览器/CDP/Hook 能力 |
 | HTTP 抓包 / 浏览器采样 / 请求重放 | anything-analyzer MCP（23816） | Reqable MCP、`js-reverse/`、jshookmcp 或 `competition-web-runtime/` |
 | 固件 / IoT | `firmware-pentest/` — OWASP FSTM 全链路：提取→仿真→fuzz→利用 | `reverse-engineering/platforms.md` — 仅静态 RE / `reverse-engineering/tools.md` — Ghidra headless |
@@ -29,7 +29,7 @@
 | 已有 case / 证据交接审查 | `case-review/SKILL.md`: Evidence 图与 fixity 校验 | `docs-generator/`: 最终报告 |
 | 密码学 / 加解密算法 | `reverse-engineering/patterns*.md` — 密码学模式 | `js-reverse/`（如果是前端加密） |
 | 协议逆向 / 自定义协议 | `reverse-engineering/platforms.md` — 网络协议 | `js-reverse/`（如果是 WebSocket/HTTP） |
-| Go / Rust 二进制 | `reverse-engineering/languages-compiled.md` + `go-reverse.md` | `ida-reverse/` 或 `radare2/` |
+| Go / Rust 二进制 | `reverse-engineering/languages-compiled.md` + `go-reverse.md` | `ghidra-reverse/` 或 `radare2/` |
 | **CTF 竞赛全栈** | `../CTF-Sandbox-Orchestrator/ctf-sandbox-orchestrator/SKILL.md` — 总控入口 | 按证据面路由到 40+ 子技能 |
 | **CTF ZIP / PKZIP 压缩包题** | `../CTF-Sandbox-Orchestrator/competition-zip-archive/SKILL.md` — legacy ZipCrypto + `bkcrack` 明文攻击 | 优先于密码暴力破解 |
 | Web 运行时 / API | `../CTF-Sandbox-Orchestrator/competition-web-runtime/SKILL.md` | — |
@@ -42,15 +42,16 @@
 | **LLM 应用 / AI Agent** | `llm-security/SKILL.md` — OWASP LLM + ASI Top 10 | `../CTF-Sandbox-Orchestrator/competition-prompt-injection/SKILL.md` — CTF 场景 |
 | **REST / GraphQL / WebSocket API** | `api-security/SKILL.md` — 10 阶段方法论 | `pentest-tools/SKILL.md` — 基础 Web 渗透 |
 | **软件供应链 / SBOM / SCA** | `supply-chain-security/SKILL.md` — 六层治理框架 | `pentest-tools/SKILL.md` — 依赖扫描工具 |
-| **恶意软件 / 病毒样本** | `malware-analysis/SKILL.md` — 六阶段分析 + YARA/Sigma | `reverse-engineering/SKILL.md` — 仅通用逆向 / `ida-reverse/` 深度分析 |
+| **恶意软件 / 病毒样本** | `malware-analysis/SKILL.md` — 六阶段分析 + YARA/Sigma | `reverse-engineering/SKILL.md` — 仅通用逆向 / `ghidra-reverse/` 深度分析 |
 | **公开来源威胁情报 / OSINT** | `threat-intelligence/SKILL.md` — IOC 补充与活动关联 | 公开 X/Twitter 帖子必须由独立来源核验 |
 
 ## 按用户意图
 
 | 用户说 | 可以参考 |
 |--------|---------|
-| "反编译/IDA 看一下" | `ida-reverse/SKILL.md` — IDA MCP 工作流 |
-| "还原源码/还原为汇编/逆向还原" | `reverse-engineering/SKILL.md` — 通用逆向 + `ida-reverse/` 或 capstone 静态反汇编 |
+| "反编译/反汇编/看二进制" | `ghidra-reverse/SKILL.md` — Ghidra 反编译（默认） |
+| "IDA 看一下（显式点名）" | `ida-reverse/SKILL.md` — IDA MCP 工作流（需许可） |
+| "还原源码/还原为汇编/逆向还原" | `reverse-engineering/SKILL.md` — 通用逆向 + `ghidra-reverse/` 或 capstone 静态反汇编 |
 | "Frida hook 一下/动态注入" | `reverse-engineering/tools-dynamic.md` — Frida 章节 |
 | "radare2 / r2 分析" | `radare2/SKILL.md` — CLI 工作流 |
 | "找前端签名/加密参数" | `js-reverse/SKILL.md` — Observe→Capture→Rebuild |
@@ -139,9 +140,9 @@
 | "WinRM/Windows 远程" | `pentest-tools/SKILL.md` — evil-winrm-py |
 | "NetExec/CrackMapExec/nxc" | `pentest-tools/SKILL.md` — 网络服务枚举 |
 | "AI 自动渗透/MCP 安全" | `pentest-tools/SKILL.md` — HexStrike AI / MetasploitMCP / mcp-kali-server |
-| "Swarm/群体渗透/自主扫描" | `pentest-tools/SKILL.md` — Pentest Swarm AI（pentestswarm scan --swarm） |
-| "Bug Bounty 自动化/持续监控" | `pentest-tools/SKILL.md` — Pentest Swarm AI playbook: bug-bounty |
-| "攻击面管理/ASM" | `pentest-tools/SKILL.md` — Pentest Swarm AI playbook: external-asm |
+| "Swarm/群体渗透/自主扫描" | 客户端 agent 插件（如 dsh-pentester）+ `pentest-tools/SKILL.md` |
+| "Bug Bounty 自动化/持续监控" | 客户端 agent 插件（如 dsh-pentester）playbook: bug-bounty |
+| "攻击面管理/ASM" | 客户端 agent 插件（如 dsh-pentester）playbook: external-asm |
 | "红队/攻防演练/HW" | `attack-chain/SKILL.md` — 完整攻击链编排（信息收集→突破→提权→横向→维持） |
 | "打点/初始突破/边界突破" | `attack-chain/SKILL.md` — 边界突破阶段 |
 | "近源渗透/BadUSB/WiFi钓鱼" | `attack-chain/SKILL.md` — 近源渗透章节 |
@@ -161,7 +162,7 @@
 | "Metasploit/msfconsole/exploit" | `pentest-tools/SKILL.md` — 利用框架 |
 | "Wireshark/抓包分析/PCAP" | `digital-forensics/` 或 `protocol-reverse/` |
 | "协议逆向/Protobuf/自定义协议" | `protocol-reverse/SKILL.md` |
-| "Ghidra/无 IDA" | `ghidra-reverse/SKILL.md` |
+| "Ghidra/无 IDA/开源反编译" | `ghidra-reverse/SKILL.md` |
 | "Binary Ninja/Binja/HLIL/MLIL/Binary Ninja MCP" | `binary-ninja-reverse/SKILL.md` |
 | "K8s/容器逃逸/云安全" | `cloud-k8s/SKILL.md` |
 | "域渗透/BloodHound/Certipy/Kerberoast" | `windows-ad/SKILL.md` |
@@ -244,7 +245,6 @@
 | MetasploitMCP | `pentest-tools/` — Metasploit MCP 接口（Kali 2026.1: `apt install metasploitmcp`） |
 | mcp-kali-server | `pentest-tools/` — Kali 官方 MCP，AI 直接调用终端工具（`apt install mcp-kali-server`） |
 | HexStrike AI | `pentest-tools/` — 150+ 安全工具 MCP 自动化（Kali 2025.4: `apt install hexstrike-ai`） |
-| Pentest Swarm AI | `pentest-tools/` — 群体智能自主渗透框架，stigmergic blackboard 协调多 agent（`go install` 或 Docker） |
 | AdaptixC2 | `pentest-tools/` — 后渗透与对抗模拟框架（Kali 2026.1: `apt install adaptixc2`） |
 | Atomic-Operator | `pentest-tools/` — Atomic Red Team 测试执行（Kali 2026.1） |
 | Coercer | `pentest-tools/` — Windows 认证强制/NTLM relay（`apt install coercer`） |
@@ -308,7 +308,7 @@
 APK 逆向路径：
   apk-reverse/scripts/decode.ps1 → Java 层分析
   ↓ 如果核心在 .so
-  ida-reverse/ 或 radare2/ → so 分析
+  ghidra-reverse/ 或 radare2/ → so 分析
   ↓ 如果需动态验证
   apk-reverse/scripts/frida-run.ps1 → Frida Hook
 
@@ -324,7 +324,7 @@ APK 逆向路径：
 二进制逆向路径：
   radare2/scripts/recon.ps1 → 快速侦察
   ↓ 深度分析
-  ida-reverse/ → IDA 反编译
+  ghidra-reverse/ → Ghidra 反编译（默认）
   ↓ 动态验证
   reverse-engineering/tools-dynamic.md → Frida/GDB
 

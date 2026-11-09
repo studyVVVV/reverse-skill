@@ -99,7 +99,7 @@
 - WinRM、evil-winrm、Windows 远程执行
 - NetExec、nxc、CrackMapExec、SMB 枚举
 - AI 自动渗透、HexStrike、MetasploitMCP、mcp-kali-server
-- Pentest Swarm、pentestswarm、群体渗透、Swarm AI、自主扫描、stigmergy
+- PTES 编排、群体渗透、自主扫描、攻击链编排
 - Bug Bounty 自动化、攻击面管理、ASM、持续监控
 - GEF、GDB 增强、调试框架
 - Wireshark、tshark、PCAP 分析、抓包分析
@@ -297,7 +297,7 @@
 | idapro | 13337-13350 | IDA Pro 72 个逆向工具 | 自动启动（IDA 插件），多实例端口递增 |
 | anything-analyzer | 23816 | 浏览器自动化 + HTTP 捕获 | `pnpm dev`（项目目录） |
 | jshookmcp | — | JS Hook/CDP/Network/AST | `npx -y @jshookmcp/jshook@0.3.4`（stdio） |
-| ghidra | 8765 | Ghidra 免费反编译 | Ghidra GUI 启动后自动监听 |
+| ghidra | 8080 | Ghidra 免费反编译（GhidraMCP 2.0 插件内置 HTTP 后端） | Ghidra 打开程序后自动监听 127.0.0.1:8080 |
 | burpsuite | 9876 | BurpSuite 78 工具全控制（Proxy/Intruder/Repeater/Scanner/Collaborator） | Burp 启动后扩展自动加载 |
 
 使用 MCP 工具前：
@@ -492,7 +492,7 @@ Kali Linux（Bash，含 Kali 原生工具链）：
 bash <本包根目录>/kali/scripts/bootstrap-reverse.sh 工具名 --start-services
 ```
 
-支持的能力名（与 `skills/scripts/bootstrap-manifest.json` 保持一致，共 26 项）：jadx、apktool、jeb-pro、binaryninja、frida、frida-ps、idalib-mcp、reqable-mcp、jshookmcp、xquik-mcp、anything-analyzer、idapro、r2、rabin2、adb、agent-browser、ghidra-mcp、seclists、proxycat、burpsuite-mcp、nmap、pentestswarm、binwalk、yara、pwntools、bkcrack
+支持的能力名（与 `skills/scripts/bootstrap-manifest.json` 保持一致，共 25 项）：jadx、apktool、jeb-pro、binaryninja、frida、frida-ps、idalib-mcp、reqable-mcp、jshookmcp、xquik-mcp、anything-analyzer、idapro、r2、rabin2、adb、agent-browser、ghidra-mcp、seclists、proxycat、burpsuite-mcp、nmap、binwalk、yara、pwntools、bkcrack
 
 ## 刷新工具索引（仅供参考；获批计划涵盖时才执行）
 

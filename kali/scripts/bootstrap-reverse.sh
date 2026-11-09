@@ -30,7 +30,7 @@ for arg in "$@"; do
         --start-services) START_SERVICES=true ;;
         --skip-refresh) SKIP_REFRESH=true ;;
         --list|-l)
-            echo "jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp xquik-mcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pentestswarm pwntools bkcrack"
+            echo "jadx apktool jeb-pro frida frida-ps idalib-mcp jshookmcp reqable-mcp xquik-mcp anything-analyzer idapro r2 rabin2 adb agent-browser ghidra-mcp seclists proxycat burpsuite-mcp nmap pwntools bkcrack"
             echo "mcp-kali-server metasploitmcp hexstrike-ai adaptixc2 atomic-operator sstimap xsstrike wpprobe fluxion gef coercer evil-winrm-py netexec responder bloodhound certipy"
             exit 0
             ;;
@@ -57,7 +57,7 @@ if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
     echo ""
     echo "  [MCP 服务]"
     echo "    jshookmcp reqable-mcp xquik-mcp anything-analyzer idapro agent-browser"
-    echo "    mcp-kali-server metasploitmcp hexstrike-ai pentestswarm"
+    echo "    mcp-kali-server metasploitmcp hexstrike-ai"
     echo ""
     echo "  [CTF 压缩包]"
     echo "    bkcrack"
@@ -66,9 +66,8 @@ if [[ ${#CAPABILITIES[@]} -eq 0 ]]; then
     echo "    ghidra-mcp seclists proxycat burpsuite-mcp"
     echo ""
     echo "示例:"
-    echo "  $0 mcp-kali-server metasploitmcp hexstrike-ai pentestswarm  # 全部渗透 MCP"
+    echo "  $0 mcp-kali-server metasploitmcp hexstrike-ai  # 全部渗透 MCP"
     echo "  $0 adaptixc2 sstimap xsstrike wpprobe          # 安装 2026.1 新工具"
-    echo "  $0 pentestswarm --start-services               # 安装 Swarm AI"
     echo "  $0 idapro --start-services                     # 安装并启动 IDA MCP"
     exit 1
 fi
@@ -511,32 +510,6 @@ ensure_capability() {
             log_info "  先启动 API: hexstrike_server   （默认 http://127.0.0.1:8888）"
             log_info "  MCP 客户端: hexstrike_mcp --server http://127.0.0.1:8888"
             ;;
-        # ─── Pentest Swarm AI（群体智能渗透框架） ───
-        pentestswarm)
-            if command -v pentestswarm &>/dev/null; then
-                log_ok "pentestswarm 已可用"
-            elif command -v go &>/dev/null; then
-                log_info "go install pentestswarm ..."
-                go install github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@v0.1.0
-            elif command -v docker &>/dev/null; then
-                log_info "拉取 pentestswarm Docker 镜像 ..."
-                docker pull ghcr.io/armur-ai/pentestswarm:v0.1.0
-                log_info "使用方式: docker run --rm ghcr.io/armur-ai/pentestswarm:v0.1.0 scan <target> --scope <scope>"
-            else
-                log_warn "需要 Go 1.24+ 或 Docker 来安装 pentestswarm"
-                log_info "安装 Go: apt install golang-go"
-                log_info "然后: go install github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@v0.1.0"
-                return 1
-            fi
-            register_mcp_server "pentestswarm" '{
-                "command": "pentestswarm",
-                "args": ["mcp", "serve"]
-            }'
-            log_info "Pentest Swarm AI 已配置"
-            log_info "  MCP 模式: pentestswarm mcp serve"
-            log_info "  扫描模式: pentestswarm scan <target> --scope <scope> --swarm"
-            log_info "  需要设置: export PENTESTSWARM_ORCHESTRATOR_API_KEY=<your-claude-key>"
-            ;;
 
         # ─── pip 安装 ───
         frida|frida-ps)
@@ -583,7 +556,16 @@ EOF
                 install_apt_package "ghidra" 2>/dev/null \
                     || install_github_release "NationalSecurityAgency/ghidra" "^ghidra_.*_PUBLIC_.*\\.zip$" "$HOME/tools/ghidra"
             fi
-            log_warn "GhidraMCP 插件需手动安装: https://github.com/LaurieWired/GhidraMCP/releases"
+            if compgen -G "$HOME/.config/ghidra/*/Extensions/GhidraMCP" >/dev/null; then
+                log_ok "GhidraMCP 扩展已安装（Ghidra 用户 Extensions 目录）"
+            else
+                log_warn "GhidraMCP 插件未安装: https://github.com/LaurieWired/GhidraMCP/releases（2.0 适配 Ghidra 12.1.4）"
+            fi
+            if command -v ghidra-mcp &>/dev/null; then
+                log_ok "ghidra-mcp 客户端已可用: $(command -v ghidra-mcp)"
+            else
+                log_info "安装 MCP 客户端: pip install ghidra_mcp-2.0.0-py3-none-any.whl（建议独立 venv）"
+            fi
             ;;
         nuclei)
             if command -v go &>/dev/null; then

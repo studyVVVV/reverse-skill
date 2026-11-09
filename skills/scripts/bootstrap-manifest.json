@@ -240,13 +240,13 @@
       "postInstallSteps": [
         "下载 GhidraMCP 插件: https://github.com/LaurieWired/GhidraMCP/releases",
         "将插件 zip 安装到 Ghidra: File → Install Extensions → 选择下载的 zip",
-        "MCP server 在 Ghidra 项目打开后自动监听 localhost:8765"
+        "MCP server（GhidraMCP 2.0 插件）在 Ghidra 打开程序后自动监听 127.0.0.1:8080"
       ],
       "mcpNames": [
         "ghidra"
       ],
-      "mcpUrl": "http://localhost:8765/mcp",
-      "servicePort": 8765,
+      "mcpUrl": "http://127.0.0.1:8080/mcp",
+      "servicePort": 8080,
       "verificationMode": "service-or-registration",
       "preferApiDigest": true,
       "note": "Ghidra 发版频繁，不 pin assetSha256；改用 GitHub API digest（sha256:...）动态校验，格式已实测兼容 Assert-DownloadedFileIntegrity。"
@@ -296,26 +296,6 @@
       "docsUrl": "https://nmap.org/",
       "canAutoInstall": true,
       "verifyCommand": "nmap"
-    },
-    {
-      "name": "pentestswarm",
-      "bootstrapKind": "go-install",
-      "goPackage": "github.com/Armur-Ai/Pentest-Swarm-AI/cmd/pentestswarm@v0.1.0",
-      "fallbackKind": "docker-image",
-      "dockerImage": "ghcr.io/armur-ai/pentestswarm:v0.1.0",
-      "mcpNames": [
-        "pentestswarm"
-      ],
-      "mcpCommand": "pentestswarm",
-      "mcpArgs": [
-        "mcp",
-        "serve"
-      ],
-      "docsUrl": "https://github.com/Armur-Ai/Pentest-Swarm-AI",
-      "canAutoInstall": true,
-      "verifyCommand": "pentestswarm",
-      "note": "群体智能渗透框架。需要 Go 1.24+ 或 Docker。支持 MCP server 模式。需要 Claude/Ollama API key。",
-      "pinnedVersion": "v0.1.0"
     },
     {
       "name": "binwalk",

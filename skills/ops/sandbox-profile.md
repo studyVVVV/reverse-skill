@@ -14,7 +14,7 @@
 | jeb-pro | 商业 Android / ARM 反编译器（手动许可安装） |
 | jshookmcp / reqable-mcp / anything-analyzer / agent-browser | Web/JS/抓包/浏览器 |
 | ghidra-mcp | Ghidra |
-| nmap / seclists / proxycat / burpsuite-mcp / pentestswarm | 渗透 |
+| nmap / seclists / proxycat / burpsuite-mcp | 渗透 |
 | binwalk / pwntools / yara | 固件/pwn/恶意 |
 
 ```powershell
