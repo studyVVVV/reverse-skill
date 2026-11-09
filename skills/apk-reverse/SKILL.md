@@ -42,6 +42,7 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 - 一次性完成 `jadx + apktool` 落盘并产出摘要：`scripts/decode.ps1`
 - Frida 设备检查、进程列举、spawn/attach 注入：`scripts/frida-run.ps1`
 - 重建、对齐、签名、安装 APK：`scripts/rebuild-sign-install.ps1`
+- 无 root 设备注入 Frida Gadget（Kali/Linux）：`scripts/gadget-inject.sh`
 - 快速抽取 Manifest 关键组件与权限：`scripts/manifest-summary.ps1`
 
 以下一行命令保持直接调用，不单独封装：
@@ -105,6 +106,30 @@ pwsh -File "<skill-root>\apk-reverse\scripts\rebuild-sign-install.ps1" -ProjectD
 
 - 默认生成并复用调试 keystore
 - 默认输出到 `ProjectDir` 同目录，便于和原始包、解包目录放在一起
+
+### `scripts/gadget-inject.sh`（Kali/Linux，非 root）
+
+用途：
+
+- 设备没有 root（Genymotion 免费版、非调试固件）时，用 Frida Gadget 替代 frida-server
+- 自动完成：apktool 反编译 → 放置 `lib/<abi>/libgadget.so` → 注入 `System.loadLibrary("gadget")`
+  → apktool 重建 → zipalign → apksigner 签名 → 可选 `adb install`
+
+示例：
+
+```bash
+bash <skill-root>/apk-reverse/scripts/gadget-inject.sh app.apk --install
+adb forward tcp:27042 tcp:27042
+frida-ps -H 127.0.0.1:27042        # 进程名显示为 Gadget
+frida -H 127.0.0.1:27042 -n Gadget -q -e "console.log(Process.id)"
+```
+
+说明：
+
+- 注入点优先复用 Manifest 中 `android:name` 声明的 Application 类；未声明时新建 `com.reverse.gadget.GadgetApp`
+- listen 模式要求目标 App 声明 `android.permission.INTERNET`
+- 系统 App 无法跨签名覆盖安装，请使用第三方 APK
+- Gadget 库默认取 `~/tools/frida-gadget/frida-gadget-<abi>.so`，可用 `--lib` 覆盖
 
 ### `scripts/manifest-summary.ps1`
 
