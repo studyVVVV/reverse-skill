@@ -140,6 +140,8 @@ Kali 脚本应覆盖 Windows manifest 中的核心能力名，例如 `jadx`、`a
 
 ## 2. 快速开始
 
+> 本机机器级配置（用户级工具、GhidraMCP、Python 3.13、Docker、dsh-pentester 技能包）的完整记录见 [docs/KALI-LOCAL-SETUP.md](../docs/KALI-LOCAL-SETUP.md)。
+
 ### 2.0 一键初始化（推荐新系统使用）
 
 ```bash
