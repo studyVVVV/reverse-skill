@@ -45,6 +45,7 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 - 无 root 设备注入 Frida Gadget（Kali/Linux）：`scripts/gadget-inject.sh`
 - 在已 root 设备/AVD 部署并启动 frida-server：`scripts/frida-server-android.sh`
 - 为未 root 设备启用 root（Genymotion 动态 rooting / 校验 AVD）：`scripts/android-enable-root.sh`
+- 一条命令完成「启动设备 → root → frida-server」：`scripts/android-lab-up.sh`
 - 快速抽取 Manifest 关键组件与权限：`scripts/manifest-summary.ps1`
 
 以下一行命令保持直接调用，不单独封装：
@@ -108,6 +109,28 @@ pwsh -File "<skill-root>\apk-reverse\scripts\rebuild-sign-install.ps1" -ProjectD
 
 - 默认生成并复用调试 keystore
 - 默认输出到 `ProjectDir` 同目录，便于和原始包、解包目录放在一起
+
+### `scripts/android-lab-up.sh`（Kali/Linux）
+
+用途：
+
+- 一条命令拉起实验环境：启动 AVD/Genymotion → 等待开机 → 确保 root → 启动 frida-server
+- 这是日常最省事的入口，其余脚本是它的组成步骤
+
+示例：
+
+```bash
+bash <skill-root>/apk-reverse/scripts/android-lab-up.sh
+bash <skill-root>/apk-reverse/scripts/android-lab-up.sh --target avd --avd Pixel_10_Pro
+bash <skill-root>/apk-reverse/scripts/android-lab-up.sh --target genymotion --genymotion qn
+bash <skill-root>/apk-reverse/scripts/android-lab-up.sh --device emulator-5554 --no-start
+```
+
+说明：
+
+- `--target auto` 会复用已在线模拟器，否则启动第一个 AVD；没有 AVD 时回退 Genymotion
+- Genymotion 每次启动后自动执行 `persist.sys.root_access=3`，抵消 quickboot 的还原
+- 结束会打印 device / root / frida 三项状态，并做 `frida-ps -U` 校验
 
 ### `scripts/android-enable-root.sh`（Kali/Linux）
 

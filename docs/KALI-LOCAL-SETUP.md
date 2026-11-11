@@ -418,6 +418,38 @@ bash skills/apk-reverse/scripts/android-enable-root.sh --check
 | frida-server | 可用（启用 root 后已验证 spawn/Java） | 可用（已验证 spawn + Java.perform） |
 | 系统镜像 | 自带 vbox86p | `system-images/android-37.0/default/x86_64` |
 
+### 9.6 一键拉起：启动 → root → frida（推荐）
+
+```bash
+# 自动：优先复用在线模拟器；没有则启动第一个 AVD
+bash skills/apk-reverse/scripts/android-lab-up.sh
+
+# 指定 AVD（冷启动，等待 boot_completed）
+bash skills/apk-reverse/scripts/android-lab-up.sh --target avd --avd Pixel_10_Pro
+
+# 指定 Genymotion（启动后自动补 root，因为 quickboot 会还原 root 状态）
+bash skills/apk-reverse/scripts/android-lab-up.sh --target genymotion --genymotion qn
+
+# 已在运行时，只做 root + frida
+bash skills/apk-reverse/scripts/android-lab-up.sh --device emulator-5554 --no-start
+
+# 只要启动 + root，不起 frida
+bash skills/apk-reverse/scripts/android-lab-up.sh --no-frida
+```
+
+脚本行为：
+
+1. 选择/启动设备（AVD 用 `emulator -avd ... -no-snapshot-load`；Genymotion 用 `gmtool admin start`，可加 `--coldboot`）
+2. 轮询 `sys.boot_completed=1`
+3. 调 `android-enable-root.sh --level 3`（AVD 已 root 时直接跳过，Genymotion 自动补 root）
+4. 调 `frida-server-android.sh` 推送并启动 frida-server
+5. `frida-ps -U` 校验，输出 device/root/frida 状态
+
+实测两条链路均通过：
+
+- AVD `Pixel_10_Pro` → `emulator-5554` → root=0 → frida 就绪
+- Genymotion `qn` → `127.0.0.1:6555` → 自动 `persist.sys.root_access=3` → frida 就绪
+
 ## 10. 一键验收清单
 
 ```bash
@@ -438,9 +470,8 @@ docker run --rm --cap-add=NET_RAW fb0sh/dsh-pentester-kali:latest nmap --version
 # dsh-pentester 技能包
 find ~/.dsh/dsh-pentester/skill-packs/*/skills -name SKILL.md | wc -l   # 1011
 
-# Android 模拟器
-adb devices -l                                   # emulator-5554 / 127.0.0.1:6555
-bash skills/apk-reverse/scripts/android-enable-root.sh --check
+# Android 模拟器（启动 → root → frida 一条命令）
+bash skills/apk-reverse/scripts/android-lab-up.sh
 frida-ps -U | head -3                            # 设备进程列表
 ```
 
