@@ -44,6 +44,7 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 - 重建、对齐、签名、安装 APK：`scripts/rebuild-sign-install.ps1`
 - 无 root 设备注入 Frida Gadget（Kali/Linux）：`scripts/gadget-inject.sh`
 - 在已 root 设备/AVD 部署并启动 frida-server：`scripts/frida-server-android.sh`
+- 为未 root 设备启用 root（Genymotion 动态 rooting / 校验 AVD）：`scripts/android-enable-root.sh`
 - 快速抽取 Manifest 关键组件与权限：`scripts/manifest-summary.ps1`
 
 以下一行命令保持直接调用，不单独封装：
@@ -107,6 +108,28 @@ pwsh -File "<skill-root>\apk-reverse\scripts\rebuild-sign-install.ps1" -ProjectD
 
 - 默认生成并复用调试 keystore
 - 默认输出到 `ProjectDir` 同目录，便于和原始包、解包目录放在一起
+
+### `scripts/android-enable-root.sh`（Kali/Linux）
+
+用途：
+
+- 对已连接设备启用 root：设置 `persist.sys.root_access`（0/1/2/3 = 禁用/仅应用/仅 ADB/全部）
+- 适用于 Genymotion（`ro.genyd.caps.dynamicrooting=on`）等支持动态 rooting 的镜像
+- AVD（userdebug）本身已 root，脚本只做校验
+
+示例：
+
+```bash
+bash <skill-root>/apk-reverse/scripts/android-enable-root.sh          # 所有在线设备，level=3
+bash <skill-root>/apk-reverse/scripts/android-enable-root.sh --check  # 只检查
+bash <skill-root>/apk-reverse/scripts/android-enable-root.sh --serial 127.0.0.1:6555 --level 1
+```
+
+说明：
+
+- `--level 3` 会尝试 `adb root`（重启 adbd 为 root）；`--level 1` 只给应用 su
+- Genymotion quickboot/hibernation 恢复可能还原 root，设备每次启动后重跑即可
+- GUI 的 Root access 开关需要 license，本脚本走镜像自带的动态 rooting 通道
 
 ### `scripts/frida-server-android.sh`（Kali/Linux，已 root）
 

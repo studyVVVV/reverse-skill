@@ -48,7 +48,11 @@ ADB=(adb)
 "${ADB[@]}" get-state >/dev/null 2>&1 || { echo "ERR: 设备不可用: $DEVICE" >&2; exit 1; }
 
 stop_server() {
-    "${ADB[@]}" shell 'pkill -f /data/local/tmp/frida-server' >/dev/null 2>&1 || true
+    if [[ "$ADB_ROOT" == "true" ]]; then
+        "${ADB[@]}" shell 'pkill -f /data/local/tmp/frida-server' >/dev/null 2>&1 || true
+    else
+        "${ADB[@]}" shell "su -c 'pkill -f /data/local/tmp/frida-server'" >/dev/null 2>&1 || true
+    fi
 }
 
 if [[ "$DO_STOP" == "true" ]]; then
@@ -74,20 +78,45 @@ EOF
     exit 1
 fi
 
-if [[ "$("${ADB[@]}" shell id -u 2>/dev/null | tr -d '\r')" != "0" ]]; then
-    echo "WARN: 当前 adb shell 不是 root；frida-server 需要 root（先执行 'adb root'）" >&2
+ADB_ROOT=false
+if [[ "$("${ADB[@]}" shell id -u 2>/dev/null | tr -d '\r')" == "0" ]]; then
+    ADB_ROOT=true
+fi
+HAS_SU=false
+if "${ADB[@]}" shell 'command -v su' >/dev/null 2>&1; then
+    HAS_SU=true
+fi
+
+if [[ "$ADB_ROOT" != "true" && "$HAS_SU" != "true" ]]; then
+    cat >&2 <<'EOW'
+ERR: 设备未 root，也没有 su。先启用 root：
+  bash skills/apk-reverse/scripts/android-enable-root.sh   # Genymotion 动态 rooting / AVD userdebug
+  # 或 adb root（仅 userdebug 镜像）
+EOW
+    exit 1
+fi
+if [[ "$ADB_ROOT" != "true" ]]; then
+    echo "INFO: adb shell 非 root，将通过 su 启动 frida-server"
 fi
 
 echo "INFO: 设备 $DEVICE (ABI=$ABI)"
 echo "INFO: 推送 $SERVER ..."
 "${ADB[@]}" push "$SERVER" /data/local/tmp/frida-server >/dev/null
-"${ADB[@]}" shell chmod 755 /data/local/tmp/frida-server
+if [[ "$ADB_ROOT" == "true" ]]; then
+    "${ADB[@]}" shell chmod 755 /data/local/tmp/frida-server
+else
+    "${ADB[@]}" shell "su -c 'chmod 755 /data/local/tmp/frida-server'"
+fi
 
 stop_server
 sleep 1
 
 echo "INFO: 启动 frida-server (0.0.0.0:${PORT}) ..."
-"${ADB[@]}" shell "setsid /data/local/tmp/frida-server -l 0.0.0.0:${PORT} >/dev/null 2>&1 &" || true
+if [[ "$ADB_ROOT" == "true" ]]; then
+    "${ADB[@]}" shell "setsid /data/local/tmp/frida-server -l 0.0.0.0:${PORT} >/dev/null 2>&1 &" || true
+else
+    "${ADB[@]}" shell "su -c 'setsid /data/local/tmp/frida-server -l 0.0.0.0:${PORT} >/dev/null 2>&1 &'" || true
+fi
 
 for _ in $(seq 1 20); do
     if "${ADB[@]}" shell "pidof frida-server" >/dev/null 2>&1; then

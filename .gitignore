@@ -75,3 +75,6 @@ master-route-*/
 mcps/
 # local experiment dirs (never ship)
 *-scope-*/
+
+# Genymotion 安装包（本机文件，不入库）
+/genymotion.run

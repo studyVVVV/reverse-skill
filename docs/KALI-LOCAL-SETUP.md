@@ -376,13 +376,46 @@ frida -H 127.0.0.1:27042 -n Gadget -q -e "console.log(Process.id)"
 
 Gadget 的注入点、INTERNET 权限要求、系统 App 限制见脚本说明与 `skills/apk-reverse/SKILL.md`。
 
-### 9.4 与 Genymotion 的差异（已卸载）
+### 9.4 Genymotion（可选，已重装）
+
+| 项 | 值 |
+|---|---|
+| 安装路径 | `~/applications/genymotion/genymotion/`（GUI、`gmtool`、`genyshell`、自带 adb） |
+| 设备 | `qn`，adb 序列号 `127.0.0.1:6555`，Android 14 镜像 |
+| 授权 | `has_license=false`（`gmtool admin edit/details/adbconnect` 提示 license required，GUI 的 Root access 开关同样受限） |
+| 动态 rooting | 镜像支持：`ro.genyd.caps.dynamicrooting=on`，`persist.sys.root_access` 0/1/2/3 = 禁用/仅应用/仅 ADB/全部 |
+
+无法用 GUI 打开 Root access（无 license），但镜像自带动态 rooting 通道，直接设置属性即可：
+
+```bash
+# 全部 root（应用 + adb）
+adb -s 127.0.0.1:6555 shell setprop persist.sys.root_access 3
+adb -s 127.0.0.1:6555 root          # restarting adbd as root
+adb -s 127.0.0.1:6555 shell id -u   # 0
+```
+
+用脚本（对所有在线设备，幂等）：
+
+```bash
+bash skills/apk-reverse/scripts/android-enable-root.sh        # 默认 level=3
+bash skills/apk-reverse/scripts/android-enable-root.sh --check
+```
+
+注意：
+
+- Genymotion 的 quickboot/hibernation 恢复会把 root 状态还原（重启后 `persist.sys.root_access` 回到 0）。每次启动设备后重跑上面的脚本即可；冷启动可用 `gmtool admin start <设备> --coldboot`。
+- `gmtool admin start/stop/list` 免 license；`admin edit`（含 `--root-access`）与 `device adbconnect` 需要 license。
+- 设备 root 后 frida-server 可直接用：`bash skills/apk-reverse/scripts/frida-server-android.sh`（脚本会在 adbd 非 root 时自动走 `su`）。
+
+### 9.5 与 Genymotion 的差异（AVD vs Genymotion）
 
 | 能力 | Genymotion | AVD（Pixel_10_Pro） |
 |---|---|---|
-| root | 需有效 license | userdebug 默认 root，`adb root` 即可 |
+| Android 版本 | 14（`vbox86p` 镜像） | 17 / API 37 |
+| root 获取方式 | 动态 rooting：`setprop persist.sys.root_access 3`（GUI 开关需 license） | userdebug 默认 root，`adb root` 直接可用 |
+| root 持久性 | quickboot 恢复会还原，需每次启动后重跑脚本 | 开机即 root |
 | adb 序列号 | `127.0.0.1:6555` | `emulator-5554` |
-| frida-server | 不可用（无 root） | 可用（spawn + Java.perform 已验证） |
+| frida-server | 可用（启用 root 后已验证 spawn/Java） | 可用（已验证 spawn + Java.perform） |
 | 系统镜像 | 自带 vbox86p | `system-images/android-37.0/default/x86_64` |
 
 ## 10. 一键验收清单
@@ -405,9 +438,9 @@ docker run --rm --cap-add=NET_RAW fb0sh/dsh-pentester-kali:latest nmap --version
 # dsh-pentester 技能包
 find ~/.dsh/dsh-pentester/skill-packs/*/skills -name SKILL.md | wc -l   # 1011
 
-# Android 模拟器（AVD）
-adb devices -l                                   # emulator-5554
-adb shell id                                     # uid=0(root)
+# Android 模拟器
+adb devices -l                                   # emulator-5554 / 127.0.0.1:6555
+bash skills/apk-reverse/scripts/android-enable-root.sh --check
 frida-ps -U | head -3                            # 设备进程列表
 ```
 
