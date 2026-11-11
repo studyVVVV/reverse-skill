@@ -69,11 +69,29 @@ online_devices() {
 pick_online_emulator() {
     local d
     for d in $(online_devices); do
-        case "$d" in
-            emulator-*|127.0.0.1:*) echo "$d"; return 0 ;;
-        esac
+        case "$d" in emulator-*) echo "$d"; return 0 ;; esac
+    done
+    for d in $(online_devices); do
+        case "$d" in 127.0.0.1:*) echo "$d"; return 0 ;; esac
     done
     return 1
+}
+
+avd_serial() {
+    local name="$1" s
+    for s in $(online_devices); do
+        [[ "$s" == emulator-* ]] || continue
+        if [[ "$(adb -s "$s" emu avd name 2>/dev/null | head -n1 | tr -d '\r')" == "$name" ]]; then
+            echo "$s"; return 0
+        fi
+    done
+    return 1
+}
+
+genymotion_serial() {
+    local name="$1"
+    [[ -n "$GMTOOL" ]] || return 1
+    "$GMTOOL" admin list 2>/dev/null | awk -F'|' -v n="$name" 'NF>=4 { for(i=1;i<=4;i++) gsub(/^ +| +$/,"",$i); if ($4==n) print $2 }' | head -n1
 }
 
 first_avd() {
@@ -83,7 +101,7 @@ first_avd() {
 
 first_genymotion() {
     [[ -n "$GMTOOL" ]] || return 1
-    "$GMTOOL" admin list 2>/dev/null | awk 'NR>2 {print $NF}' | head -n1
+    "$GMTOOL" admin list 2>/dev/null | awk -F'|' 'NF>=4 { gsub(/^ +| +$/,"",$4); print $4 }' | head -n1
 }
 
 wait_boot() {
@@ -91,6 +109,28 @@ wait_boot() {
     for i in $(seq 1 "$WAIT_TIMEOUT"); do
         if [[ "$(adb -s "$serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; then
             return 0
+        fi
+        sleep 1
+    done
+    return 1
+}
+
+wait_avd_online() {
+    local name="$1" i s
+    for i in $(seq 1 "$WAIT_TIMEOUT"); do
+        if s="$(avd_serial "$name")" && [[ -n "$s" ]]; then
+            echo "$s"; return 0
+        fi
+        sleep 1
+    done
+    return 1
+}
+
+wait_genymotion_online() {
+    local name="$1" i s
+    for i in $(seq 1 "$WAIT_TIMEOUT"); do
+        if s="$(genymotion_serial "$name")" && [[ -n "$s" ]] && adb -s "$s" get-state >/dev/null 2>&1; then
+            echo "$s"; return 0
         fi
         sleep 1
     done
@@ -134,39 +174,47 @@ elif [[ "$DO_START" == "false" ]]; then
     SERIAL="$(pick_online_emulator)" || die "没有在线模拟器设备"
     log "复用在线设备: $SERIAL"
 else
-    if SERIAL="$(pick_online_emulator)"; then
-        log "已有在线设备: $SERIAL（如需重启请加 --target/--no-start 组合）"
-    else
-        case "$TARGET" in
-            avd)
-                AVD_NAME="${AVD_NAME:-$(first_avd)}"
-                [[ -n "$AVD_NAME" ]] || die "没有可用 AVD"
+    case "$TARGET" in
+        avd)
+            AVD_NAME="${AVD_NAME:-$(first_avd)}"
+            [[ -n "$AVD_NAME" ]] || die "没有可用 AVD"
+            if SERIAL="$(avd_serial "$AVD_NAME")" && [[ -n "$SERIAL" ]]; then
+                log "AVD 已在运行: $AVD_NAME ($SERIAL)"
+            else
                 start_avd "$AVD_NAME"
-                wait_device_online || die "AVD 启动超时（日志: /tmp/avd-${AVD_NAME}.log）"
-                ;;
-            genymotion)
-                GY_NAME="${GY_NAME:-$(first_genymotion)}"
-                [[ -n "$GY_NAME" ]] || die "没有可用 Genymotion 设备"
+                SERIAL="$(wait_avd_online "$AVD_NAME")" || die "AVD 启动超时（日志: /tmp/avd-${AVD_NAME}.log）"
+                log "设备已上线: $SERIAL"
+            fi
+            ;;
+        genymotion)
+            GY_NAME="${GY_NAME:-$(first_genymotion)}"
+            [[ -n "$GY_NAME" ]] || die "没有可用 Genymotion 设备"
+            if SERIAL="$(genymotion_serial "$GY_NAME")" && [[ -n "$SERIAL" ]] && adb -s "$SERIAL" get-state >/dev/null 2>&1; then
+                log "Genymotion 已在运行: $GY_NAME ($SERIAL)"
+            else
                 start_genymotion "$GY_NAME"
-                wait_device_online || die "Genymotion 启动超时"
-                ;;
-            auto)
-                if AVD_NAME="$(first_avd)"; then
-                    start_avd "$AVD_NAME"
-                    wait_device_online || die "AVD 启动超时（日志: /tmp/avd-${AVD_NAME}.log）"
-                elif [[ -n "$GMTOOL" ]]; then
-                    GY_NAME="$(first_genymotion)"
-                    start_genymotion "$GY_NAME"
-                    wait_device_online || die "Genymotion 启动超时"
-                else
-                    die "既没有可用 AVD，也没有 Genymotion"
-                fi
-                ;;
-            *) die "未知 --target: $TARGET" ;;
-        esac
-        SERIAL="$(pick_online_emulator)" || die "设备启动后未出现在 adb devices"
-        log "设备已上线: $SERIAL"
-    fi
+                SERIAL="$(wait_genymotion_online "$GY_NAME")" || die "Genymotion 启动超时"
+                log "设备已上线: $SERIAL"
+            fi
+            ;;
+        auto)
+            if SERIAL="$(pick_online_emulator)" && [[ -n "$SERIAL" ]]; then
+                log "已有在线设备: $SERIAL（如需重启请加 --target/--no-start 组合）"
+            elif AVD_NAME="$(first_avd)" && [[ -n "$AVD_NAME" ]]; then
+                start_avd "$AVD_NAME"
+                SERIAL="$(wait_avd_online "$AVD_NAME")" || die "AVD 启动超时（日志: /tmp/avd-${AVD_NAME}.log）"
+                log "设备已上线: $SERIAL"
+            elif [[ -n "$GMTOOL" ]]; then
+                GY_NAME="$(first_genymotion)"
+                start_genymotion "$GY_NAME"
+                SERIAL="$(wait_genymotion_online "$GY_NAME")" || die "Genymotion 启动超时"
+                log "设备已上线: $SERIAL"
+            else
+                die "既没有可用 AVD，也没有 Genymotion"
+            fi
+            ;;
+        *) die "未知 --target: $TARGET" ;;
+    esac
 fi
 
 log "等待开机完成 ..."

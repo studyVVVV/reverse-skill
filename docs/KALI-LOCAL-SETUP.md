@@ -437,6 +437,19 @@ bash skills/apk-reverse/scripts/android-lab-up.sh --device emulator-5554 --no-st
 bash skills/apk-reverse/scripts/android-lab-up.sh --no-frida
 ```
 
+关闭设备（与 up 对称）：
+
+```bash
+bash skills/apk-reverse/scripts/android-lab-down.sh --avd Pixel_10_Pro   # 按 AVD 名关闭
+bash skills/apk-reverse/scripts/android-lab-down.sh --device emulator-5554
+bash skills/apk-reverse/scripts/android-lab-down.sh --genymotion qn
+bash skills/apk-reverse/scripts/android-lab-down.sh --dry-run            # 只打印计划
+bash skills/apk-reverse/scripts/android-lab-down.sh                       # 关闭所有在线模拟器
+```
+
+关闭方式：AVD 用 `adb -s <serial> emu kill`（优雅退出），超时可加 `--force` 强杀
+`emulator -avd <name>` 进程；Genymotion 用 `gmtool admin stop <name>`。
+
 脚本行为：
 
 1. 选择/启动设备（AVD 用 `emulator -avd ... -no-snapshot-load`；Genymotion 用 `gmtool admin start`，可加 `--coldboot`）
@@ -470,9 +483,10 @@ docker run --rm --cap-add=NET_RAW fb0sh/dsh-pentester-kali:latest nmap --version
 # dsh-pentester 技能包
 find ~/.dsh/dsh-pentester/skill-packs/*/skills -name SKILL.md | wc -l   # 1011
 
-# Android 模拟器（启动 → root → frida 一条命令）
+# Android 模拟器（启动 → root → frida 一条命令；关闭见 down）
 bash skills/apk-reverse/scripts/android-lab-up.sh
 frida-ps -U | head -3                            # 设备进程列表
+bash skills/apk-reverse/scripts/android-lab-down.sh --dry-run
 ```
 
 ---

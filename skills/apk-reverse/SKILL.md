@@ -46,6 +46,7 @@ description: 在 CLI 环境下做 Android APK 逆向时使用。适用于 APK �
 - 在已 root 设备/AVD 部署并启动 frida-server：`scripts/frida-server-android.sh`
 - 为未 root 设备启用 root（Genymotion 动态 rooting / 校验 AVD）：`scripts/android-enable-root.sh`
 - 一条命令完成「启动设备 → root → frida-server」：`scripts/android-lab-up.sh`
+- 关闭 AVD/Genymotion（与 up 对称）：`scripts/android-lab-down.sh`
 - 快速抽取 Manifest 关键组件与权限：`scripts/manifest-summary.ps1`
 
 以下一行命令保持直接调用，不单独封装：
@@ -131,6 +132,27 @@ bash <skill-root>/apk-reverse/scripts/android-lab-up.sh --device emulator-5554 -
 - `--target auto` 会复用已在线模拟器，否则启动第一个 AVD；没有 AVD 时回退 Genymotion
 - Genymotion 每次启动后自动执行 `persist.sys.root_access=3`，抵消 quickboot 的还原
 - 结束会打印 device / root / frida 三项状态，并做 `frida-ps -U` 校验
+
+### `scripts/android-lab-down.sh`（Kali/Linux）
+
+用途：
+
+- 关闭模拟器：AVD 走 `adb -s <serial> emu kill`，Genymotion 走 `gmtool admin stop`
+- 与 `android-lab-up.sh` 配套，用于收尾/释放内存
+
+示例：
+
+```bash
+bash <skill-root>/apk-reverse/scripts/android-lab-down.sh --avd Pixel_10_Pro
+bash <skill-root>/apk-reverse/scripts/android-lab-down.sh --device emulator-5554
+bash <skill-root>/apk-reverse/scripts/android-lab-down.sh --genymotion qn
+bash <skill-root>/apk-reverse/scripts/android-lab-down.sh --dry-run
+```
+
+说明：
+
+- 默认关闭所有在线模拟器（`emulator-*` / `127.0.0.1:*`）
+- `adb emu kill` 失败时可用 `--force` 强杀 `emulator -avd <name>` 进程
 
 ### `scripts/android-enable-root.sh`（Kali/Linux）
 
